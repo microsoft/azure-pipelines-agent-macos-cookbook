@@ -1,10 +1,5 @@
-agent_name = node['vsts_agent']['agent_name']
 version = node['vsts_agent']['version']
-account = node['vsts_agent']['account']
 admin = node['vsts_agent']['admin_user']
-
-admin_home = "/Users/#{admin}"
-agent_home = "#{admin_home}/vsts-agent"
 
 homebrew_package 'openssl'
 
@@ -43,12 +38,19 @@ tar_extract "https://github.com/Microsoft/vsts-agent/releases/download/v#{versio
   download_dir "#{admin_home}/Downloads"
 end
 
+cookbook_file "#{agent_home}/bin/System.Net.Http.dll" do
+  source 'System.Net.Http.dll'
+  user admin
+  group 'admin'
+  only_if { on_high_sierra_or_newer? && !already_configured? }
+end
+
 execute 'configure agent' do
   command './config.sh --acceptteeeula --unattended'
   user admin
   environment vsts_environment
   cwd agent_home
-  not_if { ::File.exist? "#{agent_home}/.credentials" }
+  not_if { already_configured? }
 end
 
 execute 'install service' do
@@ -56,7 +58,7 @@ execute 'install service' do
   user admin
   environment vsts_environment
   cwd agent_home
-  not_if { ::File.exist? "#{admin_home}/Library/LaunchAgents/vsts.agent.#{account}.#{agent_name}.plist" }
+  not_if { launchd_plist_exists? }
 end
 
 execute 'start service' do
@@ -64,5 +66,10 @@ execute 'start service' do
   user admin
   environment vsts_environment
   cwd agent_home
-  not_if service_started?
+  not_if { service_started? }
+end
+
+directory "#{admin_home}/Downloads" do
+  action :delete
+  recursive true
 end
