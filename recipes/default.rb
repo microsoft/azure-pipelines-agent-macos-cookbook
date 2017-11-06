@@ -53,20 +53,26 @@ execute 'configure agent' do
   not_if { already_configured? }
 end
 
-execute 'install service' do
-  command './svc.sh install'
-  user admin
-  environment vsts_environment
-  cwd agent_home
-  not_if { launchd_plist_exists? }
+directory "#{admin_home}/Library/Logs" do
+  recursive true
+  owner admin
 end
 
-execute 'start service' do
-  command './svc.sh start'
-  user admin
-  environment vsts_environment
-  cwd agent_home
-  not_if { service_started? }
+directory "#{admin_home}/Library/Logs/vsts.agent.office.#{node['vsts_agent']['agent_name']}" do
+  recursive true
+  owner admin
+end
+
+launchd "vsts.agent.office.#{node['vsts_agent']['agent_name']}" do
+  label "vsts.agent.office.#{node['vsts_agent']['agent_name']}"
+  program_arguments ["#{agent_home}/runsvc.sh"]
+  username admin
+  working_directory agent_home
+  run_at_load true
+  standard_out_path "#{admin_home}/Library/Logs/vsts.agent.office.#{node['vsts_agent']['agent_name']}/stdout.log"
+  standard_error_path "#{admin_home}/Library/Logs/vsts.agent.office.#{node['vsts_agent']['agent_name']}/stdout.log"
+  environment_variables VSTS_AGENT_SVC: '1'
+  action [:create, :enable]
 end
 
 directory "#{admin_home}/Downloads" do

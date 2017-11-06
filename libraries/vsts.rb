@@ -17,7 +17,8 @@ module VstsAgent
         VSTS_AGENT_INPUT_AUTH: 'PAT',
         VSTS_AGENT_INPUT_TOKEN: agent_data[:personal_access_token],
         VSTS_AGENT_INPUT_POOL: agent_data[:agent_pool_name],
-        VSTS_AGENT_INPUT_AGENT: node['vsts_agent']['agent_name'] }
+        VSTS_AGENT_INPUT_AGENT: node['vsts_agent']['agent_name'],
+        HOME: agent_home }
     end
 
     def additional_environment
