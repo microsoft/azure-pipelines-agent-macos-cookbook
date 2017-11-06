@@ -1,0 +1,28 @@
+---
+driver:
+  name: vagrant
+  provider: parallels
+
+provisioner:
+  name: chef_zero
+  always_update_cookbooks: true
+
+platforms:
+  - name: apex/macos-10.11.6
+  - name: apex/macos-10.12.6
+  - name: apex/macos-10.13
+
+suites:
+  - name: default
+    includes:
+      - apex/macos-10.11.6
+      - apex/macos-10.12.6
+      - apex/macos-10.13
+    run_list:
+      - recipe[homebrew]
+      - recipe[vsts_agent]
+    verifier:
+      name: inspec
+      sudo: false
+      inspec_tests:
+        - test/smoke/default
