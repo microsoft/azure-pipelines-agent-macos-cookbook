@@ -1,8 +1,8 @@
 require 'spec_helper'
 include VstsAgent::VstsHelpers
 
-describe 'vsts_agent::default' do
-  context 'When all attributes are default, on macOS 10.12' do
+describe 'vsts_agent_macos::default' do
+  context 'When all attributes are default, on macOS' do
     before do
       stub_data_bag_item('vsts', 'build_agent').and_return(
         account_url: 'https://foo.visualstudio.com',

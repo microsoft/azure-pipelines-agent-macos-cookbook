@@ -46,7 +46,7 @@ cookbook_file "#{agent_home}/bin/System.Net.Http.dll" do
 end
 
 execute 'configure agent' do
-  command './config.sh --acceptteeeula --unattended'
+  command './config.sh --acceptteeeula --unattended --replace'
   user admin
   environment vsts_environment
   cwd agent_home

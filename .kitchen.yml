@@ -20,7 +20,7 @@ suites:
       - apex/macos-10.13
     run_list:
       - recipe[homebrew]
-      - recipe[vsts_agent]
+      - recipe[vsts_agent_macos]
     verifier:
       name: inspec
       sudo: false
@@ -33,7 +33,7 @@ suites:
       - apex/macos-10.13
     run_list:
       - recipe[homebrew]
-      - recipe[vsts_agent]
+      - recipe[vsts_agent_macos]
     verifier:
       name: inspec
       sudo: false
