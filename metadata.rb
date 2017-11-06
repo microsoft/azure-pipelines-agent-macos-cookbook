@@ -1,6 +1,6 @@
 name 'vsts_agent'
 maintainer 'Eric Hanko'
-maintainer_email 'v-erhank@microsoft.com'
+maintainer_email 'eric.hanko1@gmail.com'
 license 'MIT'
 description 'A dedicated cookbook for configuring a VSTS build/release agent on macOS.'
 long_description 'Installs/Configures vsts_agent'
