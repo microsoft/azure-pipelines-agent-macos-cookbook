@@ -21,7 +21,7 @@ module VstsAgent
     end
 
     def additional_environment
-      node.default['vsts_agent']['additional_environment'] = {}
+      node['vsts_agent']['additional_environment']
     end
 
     def on_high_sierra_or_newer?
