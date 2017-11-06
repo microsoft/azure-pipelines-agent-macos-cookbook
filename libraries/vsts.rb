@@ -1,3 +1,5 @@
+include Chef::Mixin::ShellOut
+
 module VstsAgent
   module VstsHelpers
     def service_started?
@@ -35,13 +37,45 @@ module VstsAgent
     end
 
     def already_configured?
-      ::File.exist? "#{agent_home}/.credentials"
+      %w(.credentials config.sh).all? { |file| ::File.exist? "#{agent_home}/#{file}" }
     end
 
     def launchd_plist_exists?
       account = node['vsts_agent']['account']
       agent_name = node['vsts_agent']['agent_name']
       ::File.exist? "#{admin_home}/Library/LaunchAgents/vsts.agent.#{account}.#{agent_name}.plist"
+    end
+
+    def release_download_url
+      version = node['vsts_agent']['version']
+      if version == 'latest'
+        latest_release
+      else
+        pinned_release(version)
+      end
+    end
+
+    def agent_needs_update?
+      current_version = already_configured? ? shell_out("#{agent_home}/config.sh --version").stdout : '0'
+      requested_version = release_download_url.match(%r{\/v(\d+\.\d+\.\d+)\/}).to_a.last
+      requested_version > current_version
+    end
+
+    private
+
+    def latest_release
+      require 'json'
+      require 'net/http'
+      require 'uri'
+
+      uri = URI.parse('https://api.github.com/repos/Microsoft/vsts-agent/releases/latest')
+      response = Net::HTTP.get_response(uri)
+      body = JSON.parse(response.body)
+      body['assets'].select { |link| link['name'] =~ /osx/ }.first['browser_download_url']
+    end
+
+    def pinned_release(version)
+      "https://github.com/Microsoft/vsts-agent/releases/download/v#{version}/vsts-agent-osx.10.11-x64-#{version}.tar.gz"
     end
   end
 end

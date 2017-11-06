@@ -26,3 +26,16 @@ suites:
       sudo: false
       inspec_tests:
         - test/smoke/default
+  - name: default
+    includes:
+      - apex/macos-10.11.6
+      - apex/macos-10.12.6
+      - apex/macos-10.13
+    run_list:
+      - recipe[homebrew]
+      - recipe[vsts_agent]
+    verifier:
+      name: inspec
+      sudo: false
+      inspec_tests:
+        - test/smoke/default

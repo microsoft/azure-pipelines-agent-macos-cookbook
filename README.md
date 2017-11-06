@@ -1,4 +1,1 @@
-# vsts_agent
-
-TODO: Enter the cookbook description here.
-
+# VSTS Agent Cookbook for macOS

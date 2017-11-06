@@ -1,4 +1,3 @@
-version = node['vsts_agent']['version']
 admin = node['vsts_agent']['admin_user']
 
 homebrew_package 'openssl'
@@ -30,12 +29,13 @@ directory "#{admin_home}/Library/LaunchAgents" do
   group 'staff'
 end
 
-tar_extract "https://github.com/Microsoft/vsts-agent/releases/download/v#{version}/vsts-agent-osx.10.11-x64-#{version}.tar.gz" do
+tar_extract release_download_url do
   target_dir agent_home
   creates "#{agent_home}/setup_version"
   group 'admin'
   user admin
   download_dir "#{admin_home}/Downloads"
+  only_if { agent_needs_update? }
 end
 
 cookbook_file "#{agent_home}/bin/System.Net.Http.dll" do
