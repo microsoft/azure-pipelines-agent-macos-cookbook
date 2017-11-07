@@ -1,7 +1,7 @@
 require 'spec_helper'
 include VstsAgent::VstsHelpers
 
-describe 'vsts_agent_macos::default' do
+describe 'vsts_agent_macos::vsts_agent' do
   before do
     stub_data_bag_item('vsts', 'build_agent').and_return(
       account_url: 'https://foo.visualstudio.com',

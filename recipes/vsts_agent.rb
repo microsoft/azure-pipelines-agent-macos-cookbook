@@ -61,35 +61,18 @@ directory "#{admin_library}/Logs/vsts.agent.office.#{agent_name}" do
   owner admin_user
 end
 
-# launchd "vsts.agent.office.#{agent_name}" do
-#   path vsts_agent_launchd_plist
-#   type 'agent'
-#   owner admin
-#   label "vsts.agent.office.#{agent_name}"
-#   program_arguments ["#{agent_home}/bin/runsvc.sh"]
-#   username admin
-#   working_directory agent_home
-#   run_at_load true
-#   standard_out_path "#{admin_library}/Logs/vsts.agent.office.#{agent_name}/stdout.log"
-#   standard_error_path "#{admin_library}/Logs/vsts.agent.office.#{agent_name}/stderr.log"
-#   environment_variables VSTS_AGENT_SVC: '1'
-#   session_type 'user'
-# end
-
-# execute 'load service' do
-#   user admin
-#   command "launchctl load -w #{vsts_agent_launchd_plist}"
-#   cwd agent_home
-#   environment vsts_environment
-#   not_if { service_started? }
-# end
+file launchd_plist do
+  action :delete
+  notifies :run, 'execute[install service]', :immediately
+  only_if { service_needs_reinstall? }
+end
 
 execute 'install service' do
   user admin_user
   command './svc.sh install'
   cwd agent_home
   environment vsts_environment
-  not_if { launchd_plist_exists? }
+  action :nothing
 end
 
 execute 'start service' do

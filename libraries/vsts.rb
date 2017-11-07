@@ -1,5 +1,3 @@
-
-
 include Chef::Mixin::ShellOut
 
 module VstsAgent
@@ -40,10 +38,6 @@ module VstsAgent
       !::File.exist? "#{agent_home}/.credentials"
     end
 
-    def launchd_plist_exists?
-      ::File.exist? vsts_agent_launchd_plist
-    end
-
     def release_download_url
       version = node['vsts_agent']['version']
       if version == 'latest'
@@ -54,17 +48,25 @@ module VstsAgent
     end
 
     def agent_needs_update?
-      current_version = shell_out("sudo -u #{admin_user} #{agent_home}/config.sh --version").stdout
+      current_version = shell_out!("sudo -u #{admin_user} #{agent_home}/config.sh --version").stdout
       requested_version = release_download_url.match(%r{\/v(\d+\.\d+\.\d+)\/}).to_a.last
       ::Gem::Version.new(requested_version) > ::Gem::Version.new(current_version)
     end
 
     def service_started?
-      output = shell_out("sudo -u #{admin_user} launchctl list | grep vsts | awk '{print $1}'").stdout
-      output =~ /\d+/
+      output = shell_out!("sudo -u #{admin_user} launchctl list | grep vsts | awk '{print $1}'").stdout.chomp
+      process_id?(output)
     end
 
-    def vsts_agent_launchd_plist
+    def service_needs_reinstall?
+      ["#{agent_home}/.service", "#{agent_home}/runsvc.sh", launchd_plist].any? { |service_file| !::File.exist?(service_file) }
+    end
+
+    def process_id?(output)
+      !!(output =~ /^\d+$/i)
+    end
+
+    def launchd_plist
       "#{admin_library}/LaunchAgents/vsts.agent.office.#{agent_name}.plist"
     end
 

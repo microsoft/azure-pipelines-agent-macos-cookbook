@@ -20,12 +20,14 @@ suites:
       - apex/macos-10.13
     run_list:
       - recipe[homebrew]
-      - recipe[vsts_agent_macos]
+      - recipe[vsts_agent_macos::vsts_agent]
     verifier:
       name: inspec
       sudo: false
       inspec_tests:
         - test/smoke/default
+    attributes: {"homebrew": {"auto-update": false }}
+
   - name: default
     includes:
       - apex/macos-10.11.6
@@ -33,9 +35,10 @@ suites:
       - apex/macos-10.13
     run_list:
       - recipe[homebrew]
-      - recipe[vsts_agent_macos]
+      - recipe[vsts_agent_macos::vsts_agent]
     verifier:
       name: inspec
       sudo: false
       inspec_tests:
         - test/smoke/default
+    attributes: {"homebrew": {"auto-update": false }}
