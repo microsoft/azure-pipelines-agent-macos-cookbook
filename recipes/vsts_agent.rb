@@ -44,7 +44,7 @@ cookbook_file "#{agent_home}/bin/System.Net.Http.dll" do
 end
 
 execute 'configure agent' do
-  command './config.sh --acceptteeeula --unattended'
+  command './config.sh --acceptteeeula --unattended --replace'
   user admin_user
   environment vsts_environment
   cwd agent_home
@@ -63,8 +63,7 @@ end
 
 file launchd_plist do
   action :delete
-  notifies :run, 'execute[install service]', :immediately
-  only_if { service_needs_reinstall? }
+  only_if { !service_started? || service_needs_reinstall? }
 end
 
 execute 'install service' do
@@ -72,7 +71,7 @@ execute 'install service' do
   command './svc.sh install'
   cwd agent_home
   environment vsts_environment
-  action :nothing
+  not_if { service_started? && !service_needs_reinstall? }
 end
 
 execute 'start service' do
@@ -81,6 +80,24 @@ execute 'start service' do
   cwd agent_home
   environment vsts_environment
   not_if { service_started? }
+end
+
+execute 'remove agent' do
+  command './svc.sh uninstall && ./config.sh remove'
+  user admin_user
+  environment vsts_environment
+  cwd agent_home
+  only_if { !needs_configuration? && !service_started? && !service_needs_reinstall? }
+  notifies :run, 'execute[reconfigure agent]', :immediately
+end
+
+execute 'reconfigure agent' do
+  command './config.sh --acceptteeeula --unattended --replace'
+  user admin_user
+  environment vsts_environment
+  cwd agent_home
+  action :nothing
+  notifies :run, 'execute[start service]', :immediately
 end
 
 directory "#{admin_home}/Downloads" do
