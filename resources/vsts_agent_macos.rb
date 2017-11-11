@@ -1,5 +1,4 @@
 resource_name :vsts_agent_macos
-default_action %i(install configure)
 
 property :agent_name, String, name_property: true
 
@@ -119,11 +118,24 @@ action :install do
 end
 
 action :configure do
-  execute 'configure vsts agent' do
+  execute 'configure VSTS agent' do
     cwd agent_home
+    user admin_user
     command './bin/Agent.Listener configure --acceptTeeEula --unattended'
     environment vsts_environment
     only_if { needs_configuration? }
+    live_stream true
+  end
+end
+
+action :remove do
+  execute 'unconfigure VSTS agent' do
+    cwd agent_home
+    user admin_user
+    command './bin/Agent.Listener remove'
+    environment vsts_environment
+    not_if { needs_configuration? }
+    live_stream true
   end
 end
 
