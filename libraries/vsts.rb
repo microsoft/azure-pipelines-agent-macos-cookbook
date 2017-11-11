@@ -1,35 +1,11 @@
+require 'json'
+require 'net/http'
+require 'uri'
+
 include Chef::Mixin::ShellOut
 
 module VstsAgent
   module VstsHelpers
-    require 'json'
-    require 'net/http'
-    require 'uri'
-
-    def admin_user
-      node['vsts_agent']['admin_user']
-    end
-
-    def agent_home
-      node['vsts_agent']['agent_home']
-    end
-
-    def agent_name
-      node['vsts_agent']['agent_name']
-    end
-
-    def admin_library
-      "#{admin_home}/Library"
-    end
-
-    def admin_home
-      "/Users/#{admin_user}"
-    end
-
-    def vsts_environment
-      default_environment.merge(additional_environment)
-    end
-
     def on_high_sierra_or_newer?
       ::Gem::Version.new(node['platform_version']) > ::Gem::Version.new('10.12.6')
     end
@@ -64,24 +40,6 @@ module VstsAgent
 
     def process_id?(output)
       !!(output =~ /^\d+$/i)
-    end
-
-    def launchd_plist
-      "#{admin_library}/LaunchAgents/vsts.agent.office.#{agent_name}.plist"
-    end
-
-    def additional_environment
-      node['vsts_agent']['additional_environment']
-    end
-
-    def default_environment
-      agent_data = data_bag_item('vsts', 'build_agent')
-      { VSTS_AGENT_INPUT_URL: agent_data[:account_url],
-        VSTS_AGENT_INPUT_AUTH: 'PAT',
-        VSTS_AGENT_INPUT_TOKEN: agent_data[:personal_access_token],
-        VSTS_AGENT_INPUT_POOL: agent_data[:agent_pool_name],
-        VSTS_AGENT_INPUT_AGENT: node['vsts_agent']['agent_name'],
-        HOME: admin_home }
     end
 
     def latest_release
