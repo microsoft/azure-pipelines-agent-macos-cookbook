@@ -1,5 +1,5 @@
 resource_name :vsts_agent_macos
-default_action :install
+default_action %i(install configure)
 
 property :agent_name, String, name_property: true
 
@@ -45,7 +45,7 @@ action_class do
   def launchd_plist
     "#{admin_library}/LaunchAgents/vsts.agent.office.#{agent_name}.plist"
   end
-  
+
   def agent_needs_update?
     if ::File.exist?("#{agent_home}/config.sh")
       current_version = shell_out!("sudo -u #{admin_user} #{agent_home}/config.sh --version").stdout
@@ -54,6 +54,10 @@ action_class do
     else
       true
     end
+  end
+
+  def needs_configuration?
+    !::File.exist? "#{agent_home}/.credentials"
   end
 end
 
@@ -111,6 +115,15 @@ action :install do
     action :nothing
     recursive true
     subscribes :delete, "tar_extract[#{release_download_url}]", :delayed
+  end
+end
+
+action :configure do
+  execute 'configure vsts agent' do
+    cwd agent_home
+    command './bin/Agent.Listener configure --acceptTeeEula --unattended'
+    environment vsts_environment
+    only_if { needs_configuration? }
   end
 end
 

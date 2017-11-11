@@ -10,10 +10,6 @@ module VstsAgent
       ::Gem::Version.new(node['platform_version']) > ::Gem::Version.new('10.12.6')
     end
 
-    def needs_configuration?
-      !::File.exist? "#{agent_home}/.credentials"
-    end
-
     def release_download_url
       version = node['vsts_agent']['version']
       if version == 'latest'
