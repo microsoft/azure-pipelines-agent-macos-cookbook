@@ -139,32 +139,30 @@ action :remove do
   end
 end
 
-action :setup do
-  file 'runsvc.sh' do
-    cwd agent_home
+action :setup_service do
+  file "#{agent_home}/runsvc.sh" do
     owner admin_user
     group 'admin'
     mode 0o775
-    content ::File.open('./bin/runsvc.sh').read
+    content ::File.open("#{agent_home}/bin/runsvc.sh").read
     action :create
   end
 
-  file '.service' do
-    cwd agent_home
+  file "#{agent_home}/.service" do
     owner admin_user
     group 'admin'
     mode 0o775
-    content vsts_agent_launchd_plist
+    content launchd_plist
     action :create
   end
 
   launchd "vsts.agent.office.#{agent_name}" do
-    path vsts_agent_launchd_plist
+    path launchd_plist
     type 'agent'
     owner admin_user
     label "vsts.agent.office.#{agent_name}"
     program_arguments ["#{agent_home}/bin/runsvc.sh"]
-    username admin
+    username admin_user
     working_directory agent_home
     run_at_load true
     standard_out_path "#{admin_library}/Logs/vsts.agent.office.#{agent_name}/stdout.log"
