@@ -139,7 +139,21 @@ action :remove do
   end
 end
 
-action :setup_service do
+action :install_service do
+  directory "#{admin_library}/Logs" do
+    recursive true
+    owner admin_user
+    group 'admin'
+    mode 0o775
+  end
+
+  directory "#{admin_library}/Logs/vsts.agent.office.#{agent_name}" do
+    recursive true
+    owner admin_user
+    group 'admin'
+    mode 0o775
+  end
+
   file "#{agent_home}/runsvc.sh" do
     owner admin_user
     group 'admin'
@@ -172,67 +186,32 @@ action :setup_service do
   end
 end
 
-# execute 'load service' do
-#   user admin
-#   command "launchctl load -w #{vsts_agent_launchd_plist}"
-#   cwd agent_home
-#   environment vsts_environment
-#   not_if { service_started? }
-# end
+action :uninstall_service do
+  file "#{agent_home}/runsvc.sh" do
+    action :delete
+  end
 
-# execute 'configure agent' do
-#   command './config.sh --acceptteeeula --unattended --replace'
-#   user admin_user
-#   environment vsts_environment
-#   cwd agent_home
-#   only_if { needs_configuration? }
-# end
+  file "#{agent_home}/.service" do
+    action :delete
+  end
 
-# directory "#{admin_library}/Logs" do
-#   recursive true
-#   owner admin_user
-# end
+  file launchd_plist do
+    action :delete
+  end
+end
 
-# directory "#{admin_library}/Logs/vsts.agent.office.#{agent_name}" do
-#   recursive true
-#   owner admin_user
-# end
+action :start_service do
+  execute 'start service with launchctl' do
+    user admin_user
+    command "launchctl load -w #{launchd_plist}"
+    not_if { service_started? }
+  end
+end
 
-# file launchd_plist do
-#   action :delete
-#   only_if { !service_started? || service_needs_reinstall? }
-# end
-
-# execute 'install service' do
-#   user admin_user
-#   command './svc.sh install'
-#   cwd agent_home
-#   environment vsts_environment
-#   not_if { service_started? && !service_needs_reinstall? }
-# end
-
-# execute 'start service' do
-#   user admin_user
-#   command './svc.sh start'
-#   cwd agent_home
-#   environment vsts_environment
-#   not_if { service_started? }
-# end
-
-# execute 'remove agent' do
-#   command './svc.sh uninstall && ./config.sh remove'
-#   user admin_user
-#   environment vsts_environment
-#   cwd agent_home
-#   only_if { !needs_configuration? && !service_started? && !service_needs_reinstall? }
-#   notifies :run, 'execute[reconfigure agent]', :immediately
-# end
-
-# execute 'reconfigure agent' do
-#   command './config.sh --acceptteeeula --unattended --replace'
-#   user admin_user
-#   environment vsts_environment
-#   cwd agent_home
-#   action :nothing
-#   notifies :run, 'execute[start service]', :immediately
-# end
+action :stop_service do
+  execute 'stop service with launchctl' do
+    user admin_user
+    command "launchctl unload #{launchd_plist}"
+    only_if { service_started? }
+  end
+end
