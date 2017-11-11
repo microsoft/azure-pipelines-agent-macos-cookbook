@@ -45,6 +45,16 @@ action_class do
   def launchd_plist
     "#{admin_library}/LaunchAgents/vsts.agent.office.#{agent_name}.plist"
   end
+  
+  def agent_needs_update?
+    if ::File.exist?("#{agent_home}/config.sh")
+      current_version = shell_out!("sudo -u #{admin_user} #{agent_home}/config.sh --version").stdout
+      requested_version = release_download_url.match(%r{\/v(\d+\.\d+\.\d+)\/}).to_a.last
+      ::Gem::Version.new(requested_version) > ::Gem::Version.new(current_version)
+    else
+      true
+    end
+  end
 end
 
 action :install do
@@ -77,13 +87,17 @@ action :install do
     group 'staff'
   end
 
+  directory "#{admin_home}/Downloads" do
+    owner admin_user
+    group 'staff'
+  end
+
   tar_extract release_download_url do
     target_dir agent_home
-    creates "#{agent_home}/setup_version"
     group 'admin'
     user admin_user
-    download_dir "#{admin_home}/Downloads"
-    only_if { !::File.exist?(agent_home) || agent_needs_update? }
+    download_dir "#{admin_home}/Downloads/vsts-agent"
+    only_if { agent_needs_update? }
   end
 
   cookbook_file "#{agent_home}/bin/System.Net.Http.dll" do
@@ -93,9 +107,10 @@ action :install do
     only_if { on_high_sierra_or_newer? && needs_configuration? }
   end
 
-  directory "#{admin_home}/Downloads" do
-    action :delete
+  directory "#{admin_home}/Downloads/vsts-agent" do
+    action :nothing
     recursive true
+    subscribes :delete, "tar_extract[#{release_download_url}]", :delayed
   end
 end
 
