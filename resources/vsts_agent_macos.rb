@@ -83,7 +83,7 @@ action :install do
     group 'admin'
     user admin_user
     download_dir "#{admin_home}/Downloads"
-    only_if { ::File.exist?(agent_home) || agent_needs_update? }
+    only_if { !::File.exist?(agent_home) || agent_needs_update? }
   end
 
   cookbook_file "#{agent_home}/bin/System.Net.Http.dll" do
