@@ -20,8 +20,9 @@ module VstsAgent
     end
 
     def service_started?
-      output = shell_out!("sudo -u #{admin_user} launchctl list | grep vsts | awk '{print $1}'").stdout.chomp
-      process_id?(output)
+      output = shell_out('su', '-l', admin_user, '-c', 'launchctl list').stdout
+      vsts_match = output.match(/(?<pid>\d+)\s+.*vsts/)
+      process_id?(vsts_match[:pid]) if vsts_match
     end
 
     def service_needs_reinstall?
@@ -29,7 +30,7 @@ module VstsAgent
     end
 
     def process_id?(output)
-      !!(output =~ /^\d+$/i)
+      output.match?(/^\d+$/i)
     end
 
     def latest_release

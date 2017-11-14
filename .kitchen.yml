@@ -16,6 +16,7 @@ suites:
   - name: default
     run_list:
       - recipe[homebrew]
+      - recipe[macos::test_user]
       - recipe[vsts_agent_macos::vsts_agent]
     verifier:
       name: inspec
