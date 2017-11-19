@@ -15,23 +15,13 @@ platforms:
 suites:
   - name: default
     run_list:
+      - recipe[vsts_agent_macos::test_user]
       - recipe[homebrew]
-      - recipe[macos::test_user]
       - recipe[vsts_agent_macos::vsts_agent]
     verifier:
       name: inspec
       sudo: false
       inspec_tests:
         - test/smoke/default
-    attributes: {"homebrew": {"auto-update": false }}
+    attributes: {"homebrew": {"auto-update": false, "owner": "admin" }}
 
-  - name: default
-    run_list:
-      - recipe[homebrew]
-      - recipe[vsts_agent_macos::vsts_agent]
-    verifier:
-      name: inspec
-      sudo: false
-      inspec_tests:
-        - test/smoke/default
-    attributes: {"homebrew": {"auto-update": false }}
