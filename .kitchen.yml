@@ -23,5 +23,5 @@ suites:
       sudo: false
       inspec_tests:
         - test/smoke/default
-    attributes: {"homebrew": {"auto-update": false, "owner": "admin" }}
+    attributes: {"homebrew": {"auto-update": false, "owner": "admin" }, "authorization": {"sudo": {"groups": ["admin"], "passwordless": true}}}
 
