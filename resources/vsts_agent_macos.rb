@@ -23,6 +23,10 @@ action_class do
     "/Users/#{admin_user}"
   end
 
+  def account_name
+    node['vsts_agent']['account']
+  end
+
   def vsts_environment
     default_environment.merge(additional_environment)
   end
@@ -36,13 +40,13 @@ action_class do
     { VSTS_AGENT_INPUT_URL: agent_data[:account_url],
       VSTS_AGENT_INPUT_AUTH: 'PAT',
       VSTS_AGENT_INPUT_TOKEN: agent_data[:personal_access_token],
-      VSTS_AGENT_INPUT_POOL: agent_data[:agent_pool_name],
+      VSTS_AGENT_INPUT_POOL: node['vsts_agent']['agent_pool'],
       VSTS_AGENT_INPUT_AGENT: node['vsts_agent']['agent_name'],
       HOME: admin_home }
   end
 
   def launchd_plist
-    "#{admin_library}/LaunchAgents/vsts.agent.office.#{agent_name}.plist"
+    "#{admin_library}/LaunchAgents/vsts.agent.#{account_name}.#{agent_name}.plist"
   end
 
   def agent_needs_update?
@@ -149,7 +153,7 @@ action :install_service do
     mode 0o775
   end
 
-  directory "#{admin_library}/Logs/vsts.agent.office.#{agent_name}" do
+  directory "#{admin_library}/Logs/vsts.agent.#{account_name}.#{agent_name}" do
     recursive true
     owner admin_user
     group 'admin'
@@ -172,17 +176,17 @@ action :install_service do
     action :create
   end
 
-  launchd "vsts.agent.office.#{agent_name}" do
+  launchd "vsts.agent.#{account_name}.#{agent_name}" do
     path launchd_plist
     type 'agent'
     owner admin_user
-    label "vsts.agent.office.#{agent_name}"
+    label "vsts.agent.#{account_name}.#{agent_name}"
     program_arguments ["#{agent_home}/bin/runsvc.sh"]
     username admin_user
     working_directory agent_home
     run_at_load true
-    standard_out_path "#{admin_library}/Logs/vsts.agent.office.#{agent_name}/stdout.log"
-    standard_error_path "#{admin_library}/Logs/vsts.agent.office.#{agent_name}/stderr.log"
+    standard_out_path "#{admin_library}/Logs/vsts.agent.#{account_name}.#{agent_name}/stdout.log"
+    standard_error_path "#{admin_library}/Logs/vsts.agent.#{account_name}.#{agent_name}/stderr.log"
     environment_variables VSTS_AGENT_SVC: '1'
     session_type 'user'
   end

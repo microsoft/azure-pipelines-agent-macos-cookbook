@@ -27,8 +27,9 @@ suites:
       inspec_tests:
         - test/smoke/default
     attributes:
-      vsts-agent:
+      vsts_agent:
         admin_user: admin
+        agent_pool: ApexInfra macOS
       homebrew:
         auto-update: false
         owner: admin
