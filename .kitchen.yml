@@ -23,6 +23,8 @@ suites:
       inspec_tests:
         - test/smoke/default
     attributes:
+      vsts-agent:
+        admin_user: admin
       homebrew:
         auto-update: false
         owner: admin
