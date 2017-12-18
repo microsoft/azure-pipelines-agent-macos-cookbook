@@ -48,7 +48,7 @@ action_class do
   def agent_needs_update?
     if ::File.exist?("#{agent_home}/config.sh")
       config_path = ::File.join(agent_home, 'config.sh')
-      current_version = shell_out(config_path, '--version', user: agent_user, env: agent_data).stdout.chomp
+      current_version = shell_out(config_path, '--version', user: admin_user, env: vsts_environment).stdout.chomp
       requested_version = release_download_url.match(%r{\/v(\d+\.\d+\.\d+)\/}).to_a.last
       ::Gem::Version.new(requested_version) > ::Gem::Version.new(current_version)
     else
