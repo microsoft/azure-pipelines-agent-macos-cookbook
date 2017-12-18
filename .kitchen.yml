@@ -20,7 +20,6 @@ suites:
       - recipe[vsts_agent_macos::vsts_agent]
     verifier:
       name: inspec
-      sudo: false
       inspec_tests:
         - test/smoke/default
     attributes:

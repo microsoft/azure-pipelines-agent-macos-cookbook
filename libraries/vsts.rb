@@ -12,7 +12,9 @@ module VstsAgent
 
     def release_download_url
       version = Chef.node['vsts_agent']['version']
-      if version == 'latest'
+      if version == 'latest' && latest_release.nil?
+        'https://vstsagentpackage.azureedge.net/agent/2.126.0/vsts-agent-osx-x64-2.126.0.tar.gz'
+      elsif version == 'latest' && !latest_release.nil?
         latest_release
       else
         pinned_release(version)
