@@ -29,7 +29,7 @@ suites:
     attributes:
       vsts_agent:
         admin_user: admin
-        agent_pool: ApexInfra macOS
+        agent_pool: OXO Hub Eng Mac Pool
       homebrew:
         auto-update: false
         owner: admin
