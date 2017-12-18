@@ -10,11 +10,9 @@ module VstsAgent
       ::Gem::Version.new(Chef.node['platform_version']) > ::Gem::Version.new('10.12.6')
     end
 
-    def release_download_url
-      version = Chef.node['vsts_agent']['version']
-      if version == 'latest' && latest_release.nil?
-        'https://vstsagentpackage.azureedge.net/agent/2.126.0/vsts-agent-osx-x64-2.126.0.tar.gz'
-      elsif version == 'latest' && !latest_release.nil?
+    def release_download_url(version = nil)
+      version ||= Chef.node['vsts_agent']['version']
+      if version == 'latest'
         latest_release
       else
         pinned_release(version)
@@ -35,11 +33,15 @@ module VstsAgent
       output.match?(/^\d+$/i)
     end
 
-    def latest_release
-      uri = ::URI.parse('https://api.github.com/repos/Microsoft/vsts-agent/releases/latest')
-      response = ::Net::HTTP.get_response(uri)
-      body = ::JSON.parse(response.body)
-      body['assets'].select { |asset| asset['name'] =~ /osx/ }.first['browser_download_url']
+    def latest_release(response_body = nil)
+      response_body ||= latest_release_response_body
+      body = ::JSON.parse(response_body)
+      assets = body['assets']
+      if assets.empty?
+        'https://vstsagentpackage.azureedge.net/agent/2.126.0/vsts-agent-osx-x64-2.126.0.tar.gz'
+      else
+        assets.select { |asset| asset['name'] =~ /osx/ }.first['browser_download_url']
+      end
     end
 
     def launchctl_command
@@ -48,6 +50,12 @@ module VstsAgent
 
     def pinned_release(version)
       "https://github.com/Microsoft/vsts-agent/releases/download/v#{version}/vsts-agent-osx.10.11-x64-#{version}.tar.gz"
+    end
+
+    def latest_release_response_body
+      uri = ::URI.parse('https://api.github.com/repos/Microsoft/vsts-agent/releases/latest')
+      response = ::Net::HTTP.get_response(uri)
+      response.body
     end
   end
 end
