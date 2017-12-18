@@ -6,6 +6,8 @@ driver:
 provisioner:
   name: chef_zero
   always_update_cookbooks: true
+  multiple_converge: 2
+  enforce_idempotency: true
 
 platforms:
   - name: apex/macos-10.11.6
@@ -14,6 +16,8 @@ platforms:
 
 suites:
   - name: default
+    excludes:
+     - apex/macos-10.13.2
     run_list:
       - recipe[vsts_agent_macos::test_user]
       - recipe[homebrew]
