@@ -47,7 +47,8 @@ action_class do
 
   def agent_needs_update?
     if ::File.exist?("#{agent_home}/config.sh")
-      current_version = shell_out!("sudo -u #{admin_user} #{agent_home}/config.sh --version").stdout
+      config_path = ::File.join(agent_home, 'config.sh')
+      current_version = shell_out(config_path, '--version', user: agent_user, env: agent_data).stdout.chomp
       requested_version = release_download_url.match(%r{\/v(\d+\.\d+\.\d+)\/}).to_a.last
       ::Gem::Version.new(requested_version) > ::Gem::Version.new(current_version)
     else
@@ -121,7 +122,7 @@ action :configure do
   execute 'configure VSTS agent' do
     cwd agent_home
     user admin_user
-    command './bin/Agent.Listener configure --acceptTeeEula --unattended'
+    command ['./bin/Agent.Listener', 'configure', '--acceptTeeEula', '--unattended']
     environment vsts_environment
     only_if { needs_configuration? }
     live_stream true
@@ -132,7 +133,7 @@ action :remove do
   execute 'unconfigure VSTS agent' do
     cwd agent_home
     user admin_user
-    command './bin/Agent.Listener remove'
+    command ['./bin/Agent.Listener', 'remove']
     environment vsts_environment
     not_if { needs_configuration? }
     live_stream true
@@ -203,7 +204,7 @@ end
 action :start_service do
   execute 'start service with launchctl' do
     user admin_user
-    command "launchctl load -w #{launchd_plist}"
+    command [launchctl_command, 'load', '-w', launchd_plist]
     not_if { service_started? }
   end
 end
@@ -211,7 +212,7 @@ end
 action :stop_service do
   execute 'stop service with launchctl' do
     user admin_user
-    command "launchctl unload #{launchd_plist}"
+    command [launchctl_command, 'unload', launchd_plist]
     only_if { service_started? }
   end
 end

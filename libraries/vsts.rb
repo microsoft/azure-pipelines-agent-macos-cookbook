@@ -7,11 +7,11 @@ include Chef::Mixin::ShellOut
 module VstsAgent
   module VstsHelpers
     def on_high_sierra_or_newer?
-      ::Gem::Version.new(node['platform_version']) > ::Gem::Version.new('10.12.6')
+      ::Gem::Version.new(Chef.node['platform_version']) > ::Gem::Version.new('10.12.6')
     end
 
     def release_download_url
-      version = node['vsts_agent']['version']
+      version = Chef.node['vsts_agent']['version']
       if version == 'latest'
         latest_release
       else
@@ -20,7 +20,7 @@ module VstsAgent
     end
 
     def service_started?
-      output = shell_out('su', '-l', admin_user, '-c', 'launchctl list').stdout
+      output = shell_out(launchctl_command, 'list', user: admin_user).stdout
       vsts_match = output.match(/(?<pid>\d+)\s+.*vsts/)
       process_id?(vsts_match[:pid]) if vsts_match
     end
@@ -38,6 +38,10 @@ module VstsAgent
       response = ::Net::HTTP.get_response(uri)
       body = ::JSON.parse(response.body)
       body['assets'].select { |asset| asset['name'] =~ /osx/ }.first['browser_download_url']
+    end
+
+    def launchctl_command
+      '/bin/launchctl'
     end
 
     def pinned_release(version)
