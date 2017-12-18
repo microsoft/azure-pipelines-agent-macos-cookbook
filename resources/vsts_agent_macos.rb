@@ -189,6 +189,7 @@ action :install_service do
     standard_error_path "#{admin_library}/Logs/vsts.agent.#{account_name}.#{agent_name}/stderr.log"
     environment_variables VSTS_AGENT_SVC: '1'
     session_type 'user'
+    action [:create, :enable]
   end
 end
 
