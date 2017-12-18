@@ -62,6 +62,7 @@ action_class do
 end
 
 action :install do
+  homebrew_package 'git'
   homebrew_package 'openssl'
 
   directory '/usr/local/lib/' do
