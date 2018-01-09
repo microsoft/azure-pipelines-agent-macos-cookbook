@@ -10,10 +10,24 @@ module VstsAgent
       ::Gem::Version.new(Chef.node['platform_version']) > ::Gem::Version.new('10.12.6')
     end
 
+    def azure_release?
+      ::Gem::Version.new(Chef.node['vsts_agent']['version']) >= ::Gem::Version.new('2.126.0')
+    end
+
     def release_download_url(version = nil)
       version ||= Chef.node['vsts_agent']['version']
-      if version == 'latest'
-        latest_release
+      version == 'latest' ? latest_release : compatible_pinned_version(version)
+    end
+
+    def latest_release
+      on_high_sierra_or_newer? ? pinned_azure_release('2.126.0') : pinned_release('2.125.1')
+    end
+
+    def compatible_pinned_version(version)
+      if azure_release? && on_high_sierra_or_newer?
+        pinned_azure_release(version)
+      elsif azure_release? && !on_high_sierra_or_newer?
+        raise Chef::Application.fatal!("Whoops! macOS #{node['platform_version']} does not support VSTS agent v#{version}.", 1)
       else
         pinned_release(version)
       end
@@ -33,23 +47,16 @@ module VstsAgent
       output.match?(/^\d+$/i)
     end
 
-    def latest_release(response_body = nil)
-      response_body ||= latest_release_response_body
-      body = ::JSON.parse(response_body)
-      assets = body['assets']
-      if assets.empty?
-        'https://vstsagentpackage.azureedge.net/agent/2.126.0/vsts-agent-osx-x64-2.126.0.tar.gz'
-      else
-        assets.select { |asset| asset['name'] =~ /osx/ }.first['browser_download_url']
-      end
-    end
-
     def launchctl_command
       '/bin/launchctl'
     end
 
     def pinned_release(version)
       "https://github.com/Microsoft/vsts-agent/releases/download/v#{version}/vsts-agent-osx.10.11-x64-#{version}.tar.gz"
+    end
+
+    def pinned_azure_release(version)
+      "https://vstsagentpackage.azureedge.net/agent/#{version}/vsts-agent-osx-x64-#{version}.tar.gz"
     end
 
     def latest_release_response_body

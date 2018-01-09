@@ -10,31 +10,31 @@ provisioner:
   enforce_idempotency: true
 
 platforms:
-  - name: apex/macos-10.11.6
-  - name: apex/macos-10.12.6
-  - name: apex/macos-10.13.2
+- name: apex/macos-10.11.6
+- name: apex/macos-10.12.6
+- name: apex/macos-10.13.2
 
 suites:
-  - name: default
-    excludes:
-     - apex/macos-10.13.2
-    run_list:
-      - recipe[vsts_agent_macos::test_user]
-      - recipe[homebrew]
-      - recipe[vsts_agent_macos::vsts_agent]
-    verifier:
-      name: inspec
-      inspec_tests:
-        - test/smoke/default
-    attributes:
-      vsts_agent:
-        admin_user: admin
-        agent_pool: OXO Hub Eng Mac Pool
-      homebrew:
-        auto-update: false
-        owner: admin
-      authorization:
-        sudo:
-          groups:
-          - admin
-          passwordless: true
+- name: default
+  excludes:
+  - apex/macos-10.13.2
+  run_list:
+  - recipe[vsts_agent_macos::test_user]
+  - recipe[homebrew]
+  - recipe[vsts_agent_macos::vsts_agent]
+  verifier:
+    name: inspec
+    inspec_tests:
+    - test/smoke/default
+  attributes:
+    vsts_agent:
+      admin_user: admin
+      agent_pool: "OXO Hub Eng Mac Pool"
+    homebrew:
+      auto-update: false
+      owner: admin
+    authorization:
+      sudo:
+        groups:
+        - admin
+        passwordless: true
