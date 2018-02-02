@@ -10,16 +10,12 @@ provisioner:
   enforce_idempotency: true
 
 platforms:
-- name: apex/macos-10.11.6
 - name: apex/macos-10.12.6
-- name: apex/macos-10.13.2
+- name: apex/macos-10.13.3
 
 suites:
 - name: default
-  excludes:
-  - apex/macos-10.13.2
   run_list:
-  - recipe[vsts_agent_macos::test_user]
   - recipe[homebrew]
   - recipe[vsts_agent_macos::vsts_agent]
   verifier:
