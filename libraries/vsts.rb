@@ -20,7 +20,7 @@ module VstsAgent
     end
 
     def latest_release
-      on_high_sierra_or_newer? ? pinned_azure_release('2.126.0') : pinned_release('2.125.1')
+      on_high_sierra_or_newer? ? pinned_azure_release('2.129.0') : pinned_release('2.125.1')
     end
 
     def compatible_pinned_version(version)
