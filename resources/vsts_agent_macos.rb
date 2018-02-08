@@ -3,6 +3,8 @@ resource_name :vsts_agent_macos
 property :agent_name, String, name_property: true
 
 action_class do
+  include VstsAgent::VstsHelpers
+
   def admin_user
     node['vsts_agent']['admin_user']
   end
@@ -36,13 +38,20 @@ action_class do
   end
 
   def default_environment
-    agent_data = data_bag_item('vsts', 'build_agent')
     { VSTS_AGENT_INPUT_URL: agent_data[:account_url],
       VSTS_AGENT_INPUT_AUTH: 'PAT',
       VSTS_AGENT_INPUT_TOKEN: agent_data[:personal_access_token],
       VSTS_AGENT_INPUT_POOL: node['vsts_agent']['agent_pool'],
       VSTS_AGENT_INPUT_AGENT: node['vsts_agent']['agent_name'],
       HOME: admin_home }
+  end
+
+  def target_path
+    ::File.join(agent_home, ::File.basename(release_download_url))
+  end
+
+  def agent_data
+    data_bag_item('vsts', 'build_agent')
   end
 
   def launchd_plist
@@ -53,7 +62,8 @@ action_class do
     if ::File.exist?("#{agent_home}/config.sh")
       config_path = ::File.join(agent_home, 'config.sh')
       current_version = shell_out(config_path, '--version', user: admin_user, env: vsts_environment).stdout.chomp
-      requested_version = release_download_url.match(%r{\/v(\d+\.\d+\.\d+)\/}).to_a.last
+      version_pattern = Regexp.new "\d+\.\d+\.\d+"
+      requested_version = release_download_url.match(version_pattern).to_a.last
       ::Gem::Version.new(requested_version) > ::Gem::Version.new(current_version)
     else
       true
@@ -96,30 +106,31 @@ action :install do
     group 'staff'
   end
 
-  directory "#{admin_home}/Downloads" do
+  directory "#{admin_home}/Downloads/vsts-agent" do
+    recursive true
     owner admin_user
     group 'staff'
   end
 
-  tar_extract release_download_url do
+  remote_file target_path do
+    source release_download_url
+    owner admin_user
+    group 'admin'
+    show_progress true
+  end
+
+  tar_extract target_path do
     target_dir agent_home
     group 'admin'
     user admin_user
-    download_dir "#{admin_home}/Downloads/vsts-agent"
+    action :extract_local
     only_if { agent_needs_update? }
-  end
-
-  cookbook_file "#{agent_home}/bin/System.Net.Http.dll" do
-    source 'System.Net.Http.dll'
-    owner admin_user
-    group 'admin'
-    only_if { on_high_sierra_or_newer? && needs_configuration? }
   end
 
   directory "#{admin_home}/Downloads/vsts-agent" do
     action :nothing
     recursive true
-    subscribes :delete, "tar_extract[#{release_download_url}]", :delayed
+    subscribes :delete, 'tar_extract[vsts agent source]', :delayed
   end
 end
 

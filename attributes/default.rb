@@ -1,4 +1,4 @@
-default['vsts_agent']['version'] = 'latest'
+default['vsts_agent']['version'] = '2.129.0'
 default['vsts_agent']['agent_name'] = node['hostname']
 default['vsts_agent']['account'] = 'office'
 default['vsts_agent']['agent_pool'] = 'OXO Hub Eng Mac Pool'

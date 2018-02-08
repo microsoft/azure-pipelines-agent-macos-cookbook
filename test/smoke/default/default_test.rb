@@ -1,3 +1,5 @@
+require 'pry'
+
 describe user('vagrant') do
   it { should exist }
   its('uid') { should eq 501 }
@@ -5,7 +7,10 @@ describe user('vagrant') do
   its('home') { should eq '/Users/vagrant' }
 end
 
-describe launchd_service('vsts.agent') do
+binding.pry
+
+describe launchd_service('vsts.agent.office') do
   it { should be_enabled }
+  it { should be_installed }
   it { should be_running }
 end
