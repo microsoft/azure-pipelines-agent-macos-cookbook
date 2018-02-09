@@ -14,13 +14,16 @@ platforms:
 - name: apex/macos-10.12.6
 - name: apex/macos-10.13.3
 
+verifier:
+  name: inspec
+
 suites:
 - name: default
   run_list:
   - recipe[homebrew]
   - recipe[vsts_agent_macos::vsts_agent]
   verifier:
-    name: inspec
+    sudo: false
     inspec_tests:
     - test/smoke/default
   attributes:
