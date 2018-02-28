@@ -9,6 +9,10 @@ action_class do
     node['vsts_agent']['admin_user']
   end
 
+  def staff_group
+    'staff'
+  end
+
   def agent_home
     ::File.join('/Users', admin_user, 'vsts-agent')
   end
@@ -29,6 +33,10 @@ action_class do
     node['vsts_agent']['account']
   end
 
+  def account_url
+    'https://' + account_name + '.visualstudio.com'
+  end
+
   def vsts_environment
     default_environment.merge(additional_environment)
   end
@@ -38,7 +46,7 @@ action_class do
   end
 
   def default_environment
-    { VSTS_AGENT_INPUT_URL: agent_data[:account_url],
+    { VSTS_AGENT_INPUT_URL: account_url,
       VSTS_AGENT_INPUT_AUTH: 'PAT',
       VSTS_AGENT_INPUT_TOKEN: agent_data[:personal_access_token],
       VSTS_AGENT_INPUT_POOL: node['vsts_agent']['agent_pool'],
@@ -51,7 +59,7 @@ action_class do
   end
 
   def agent_data
-    data_bag_item('vsts', 'build_agent')
+    data_bag_item node['vsts_agent']['data_bag'], node['vsts_agent']['data_bag_item']
   end
 
   def launchd_plist
@@ -82,52 +90,56 @@ action :install do
   directory '/usr/local/lib/' do
     recursive true
     owner admin_user
-    group 'admin'
+    group staff_group
   end
 
   link '/usr/local/lib/libcrypto.1.0.0.dylib' do
     to '/usr/local/opt/openssl/lib/libcrypto.1.0.0.dylib'
     owner admin_user
+    group staff_group
   end
 
   link '/usr/local/lib/libssl.1.0.0.dylib' do
     to '/usr/local/opt/openssl/lib/libssl.1.0.0.dylib'
     owner admin_user
+    group staff_group
   end
 
   directory agent_home do
     owner admin_user
-    group 'staff'
+    group staff_group
   end
 
   directory "#{admin_library}/LaunchAgents" do
     recursive true
     owner admin_user
-    group 'staff'
+    group staff_group
   end
 
   directory "#{admin_home}/Downloads/vsts-agent" do
     recursive true
     owner admin_user
-    group 'staff'
+    group staff_group
   end
 
   remote_file target_path do
     source release_download_url
     owner admin_user
-    group 'admin'
+    group staff_group
     show_progress true
   end
 
   tar_extract target_path do
     target_dir agent_home
-    group 'admin'
+    group staff_group
     user admin_user
     action :extract_local
     only_if { agent_needs_update? }
   end
 
   directory "#{admin_home}/Downloads/vsts-agent" do
+    user admin_user
+    group staff_group
     action :nothing
     recursive true
     subscribes :delete, 'tar_extract[vsts agent source]', :delayed
@@ -160,29 +172,25 @@ action :install_service do
   directory "#{admin_library}/Logs" do
     recursive true
     owner admin_user
-    group 'admin'
-    mode 0o775
+    group staff_group
   end
 
   directory "#{admin_library}/Logs/vsts.agent.#{account_name}.#{agent_name}" do
     recursive true
     owner admin_user
-    group 'admin'
-    mode 0o775
+    group staff_group
   end
 
   file "#{agent_home}/runsvc.sh" do
     owner admin_user
-    group 'admin'
-    mode 0o775
+    group staff_group
     content ::File.open("#{agent_home}/bin/runsvc.sh").read
     action :create
   end
 
   file "#{agent_home}/.service" do
     owner admin_user
-    group 'admin'
-    mode 0o775
+    group staff_group
     content launchd_plist
     action :create
   end
@@ -204,6 +212,14 @@ action :install_service do
   end
 end
 
+action :start_service do
+  execute 'start service with launchctl' do
+    user admin_user
+    command [launchctl_command, 'load', '-w', launchd_plist]
+    not_if { service_started? }
+  end
+end
+
 action :uninstall_service do
   file "#{agent_home}/runsvc.sh" do
     action :delete
@@ -215,14 +231,6 @@ action :uninstall_service do
 
   file launchd_plist do
     action :delete
-  end
-end
-
-action :start_service do
-  execute 'start service with launchctl' do
-    user admin_user
-    command [launchctl_command, 'load', '-w', launchd_plist]
-    not_if { service_started? }
   end
 end
 
