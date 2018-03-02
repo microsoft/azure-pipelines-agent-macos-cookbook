@@ -18,7 +18,7 @@ default['vsts_agent']['agent_name']
 
 The version of the agent to install.
 
-**Default value:** `'latest'`
+**Default value:** `'2.129.0'`
 
 ```ruby
 default['vsts_agent']['version']
@@ -36,7 +36,7 @@ default['vsts_agent']['agent_pool']
 
 ### VSTS Account Name
 
-The name of your VSTS account.
+The name of your VSTS account. (i.e. 'americanhanko' in `https://americanhanko.visualstudio.com`)
 
 **Default value:** `americanhanko`
 
