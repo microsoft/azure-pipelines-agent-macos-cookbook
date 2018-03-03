@@ -195,6 +195,14 @@ action :install_service do
     action :create
   end
 
+  template "#{agent_home}/.service" do
+    source 'env.erb'
+    owner admin_user
+    group staff_group
+    mode 0o755
+    variables()
+  end
+
   launchd "vsts.agent.#{account_name}.#{agent_name}" do
     path launchd_plist
     type 'agent'
