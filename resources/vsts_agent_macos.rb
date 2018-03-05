@@ -157,17 +157,6 @@ action :configure do
   end
 end
 
-action :remove do
-  execute 'unconfigure VSTS agent' do
-    cwd agent_home
-    user admin_user
-    command ['./bin/Agent.Listener', 'remove']
-    environment vsts_environment
-    not_if { needs_configuration? }
-    live_stream true
-  end
-end
-
 action :install_service do
   directory "#{admin_library}/Logs" do
     recursive true
@@ -195,12 +184,11 @@ action :install_service do
     action :create
   end
 
-  template "#{agent_home}/.service" do
+  template "#{agent_home}/.env" do
     source 'env.erb'
     owner admin_user
     group staff_group
     mode 0o755
-    variables()
   end
 
   launchd "vsts.agent.#{account_name}.#{agent_name}" do
@@ -228,6 +216,14 @@ action :start_service do
   end
 end
 
+action :stop_service do
+  execute 'stop service with launchctl' do
+    user admin_user
+    command [launchctl_command, 'unload', launchd_plist]
+    only_if { service_started? }
+  end
+end
+
 action :uninstall_service do
   file "#{agent_home}/runsvc.sh" do
     action :delete
@@ -242,10 +238,13 @@ action :uninstall_service do
   end
 end
 
-action :stop_service do
-  execute 'stop service with launchctl' do
+action :remove do
+  execute 'unconfigure VSTS agent' do
+    cwd agent_home
     user admin_user
-    command [launchctl_command, 'unload', launchd_plist]
-    only_if { service_started? }
+    command ['./bin/Agent.Listener', 'remove']
+    environment vsts_environment
+    not_if { needs_configuration? }
+    live_stream true
   end
 end
