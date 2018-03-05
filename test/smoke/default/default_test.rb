@@ -15,5 +15,5 @@ describe file('/Users/vagrant/vsts-agent/.env') do
   it { should exist }
   its('owner') { should eq 'vagrant' }
   its('content') { should match(/^LANG=en_US\.UTF\-8$/) }
-  its('content') { should match(/^VAGRANT_SERVER_URL=http:\/\/office\-infra\-boxes\.corp\.microsoft\.com$/) }
+  its('content') { should match %r{^VAGRANT_SERVER_URL=http:\/\/office\-infra\-boxes\.corp\.microsoft\.com$} }
 end
