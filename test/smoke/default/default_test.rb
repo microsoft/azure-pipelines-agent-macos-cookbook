@@ -10,3 +10,10 @@ describe launchd_service('vsts.agent.office') do
   it { should be_installed }
   it { should be_running }
 end
+
+describe file('/Users/vagrant/vsts-agent/.env') do
+  it { should exist }
+  its('owner') { should eq 'vagrant' }
+  its('content') { should match(/^LANG=en_US\.UTF\-8$/) }
+  its('content') { should match %r{^VAGRANT_SERVER_URL=http:\/\/office\-infra\-boxes\.corp\.microsoft\.com$} }
+end

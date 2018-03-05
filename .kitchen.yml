@@ -32,6 +32,8 @@ suites:
       account: office
       data_bag: vsts
       data_bag_item: office_build_agent
+      additional_environment:
+        VAGRANT_SERVER_URL: http://office-infra-boxes.corp.microsoft.com
     homebrew:
       auto-update: false
       owner: vagrant
