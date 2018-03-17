@@ -6,8 +6,6 @@ driver:
 provisioner:
   name: chef_zero
   always_update_cookbooks: true
-  multiple_converge: 2
-  enforce_idempotency: true
   require_chef_omnibus: true
 
 platforms:
@@ -20,12 +18,13 @@ verifier:
 suites:
 - name: default
   run_list:
-  - recipe[homebrew]
   - recipe[vsts_agent_macos::vsts_agent]
+  - recipe[vsts_agent_macos::service_audit]
+  - recipe[vsts_agent_macos::teardown]
   verifier:
     sudo: false
     inspec_tests:
-    - test/smoke/default
+    - test/integration/default
   attributes:
     vsts_agent:
       agent_pool: OXO Hub Eng Mac Pool
@@ -34,6 +33,7 @@ suites:
       data_bag_item: office_build_agent
       additional_environment:
         VAGRANT_SERVER_URL: http://office-infra-boxes.corp.microsoft.com
+        MEAL: ends-with-sauce
     homebrew:
       auto-update: false
       owner: vagrant

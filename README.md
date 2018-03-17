@@ -1,6 +1,29 @@
 VSTS Agent Cookbook for macOS
 =============================
 
+![](https://office.visualstudio.com/_apis/public/build/definitions/59d72877-1cea-4eb6-9d06-66716573631a/2373/badge)
+
+Recipes
+-------
+
+### Bootstrap
+
+Usage: `vsts_agent_macos::bootstrap`
+
+Bootstrap an agent to specified VSTS server
+
+### Teardown
+
+Usage: `vsts_agent_mags::teardown`
+
+Remove an existing agent from the specified VSTS server
+
+### Service audit
+
+Usage: `vsts_agent_mags::service_audit`
+
+A during-converge test. Include this recipe to verify that the agent service is running. If it isn't, raise an exception.
+
 Attributes
 ----------
 

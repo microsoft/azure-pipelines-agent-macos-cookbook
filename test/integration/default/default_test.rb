@@ -6,9 +6,9 @@ describe user('vagrant') do
 end
 
 describe launchd_service('vsts.agent.office') do
-  it { should be_enabled }
-  it { should be_installed }
-  it { should be_running }
+  it { should_not be_enabled }
+  it { should_not be_installed }
+  it { should_not be_running }
 end
 
 describe file('/Users/vagrant/vsts-agent/.env') do
