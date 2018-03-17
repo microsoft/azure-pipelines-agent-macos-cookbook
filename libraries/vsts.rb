@@ -32,6 +32,18 @@ module VstsAgent
     def pinned_release(version)
       ::URI.encode("https://vstsagentpackage.azureedge.net/agent/#{version}/vsts-agent-osx-x64-#{version}.tar.gz")
     end
+
+    def agent_name
+      Chef.node['vsts_agent']['agent_name']
+    end
+
+    def account_name
+      Chef.node['vsts_agent']['account']
+    end
+
+    def admin_user
+      Chef.node['vsts_agent']['admin_user']
+    end
   end
 end
 

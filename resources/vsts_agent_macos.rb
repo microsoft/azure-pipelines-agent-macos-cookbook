@@ -5,10 +5,6 @@ property :agent_name, String, name_property: true
 action_class do
   include VstsAgent::VstsHelpers
 
-  def admin_user
-    node['vsts_agent']['admin_user']
-  end
-
   def staff_group
     'staff'
   end
@@ -17,20 +13,12 @@ action_class do
     ::File.join('/Users', admin_user, 'vsts-agent')
   end
 
-  def agent_name
-    node['vsts_agent']['agent_name']
-  end
-
   def admin_library
     "#{admin_home}/Library"
   end
 
   def admin_home
     "/Users/#{admin_user}"
-  end
-
-  def account_name
-    node['vsts_agent']['account']
   end
 
   def account_url
@@ -50,7 +38,7 @@ action_class do
       VSTS_AGENT_INPUT_AUTH: 'PAT',
       VSTS_AGENT_INPUT_TOKEN: agent_data[:personal_access_token],
       VSTS_AGENT_INPUT_POOL: node['vsts_agent']['agent_pool'],
-      VSTS_AGENT_INPUT_AGENT: node['vsts_agent']['agent_name'],
+      VSTS_AGENT_INPUT_AGENT: new_resource.agent_name,
       HOME: admin_home }
   end
 
@@ -63,7 +51,7 @@ action_class do
   end
 
   def launchd_plist
-    "#{admin_library}/LaunchAgents/vsts.agent.#{account_name}.#{agent_name}.plist"
+    "#{admin_library}/LaunchAgents/vsts.agent.#{account_name}.#{new_resource.agent_name}.plist"
   end
 
   def agent_needs_update?
@@ -84,6 +72,7 @@ action_class do
 end
 
 action :install do
+  include_recipe 'homebrew::default'
   homebrew_package 'git'
   homebrew_package 'openssl'
 
@@ -164,7 +153,7 @@ action :install_service do
     group staff_group
   end
 
-  directory "#{admin_library}/Logs/vsts.agent.#{account_name}.#{agent_name}" do
+  directory "#{admin_library}/Logs/vsts.agent.#{account_name}.#{new_resource.agent_name}" do
     recursive true
     owner admin_user
     group staff_group
@@ -189,19 +178,20 @@ action :install_service do
     owner admin_user
     group staff_group
     mode 0o755
+    notifies :restart, "launchd[vsts.agent.#{account_name}.#{new_resource.agent_name}]", :delayed
   end
 
-  launchd "vsts.agent.#{account_name}.#{agent_name}" do
+  launchd "vsts.agent.#{account_name}.#{new_resource.agent_name}" do
     path launchd_plist
     type 'agent'
     owner admin_user
-    label "vsts.agent.#{account_name}.#{agent_name}"
+    label "vsts.agent.#{account_name}.#{new_resource.agent_name}"
     program_arguments ["#{agent_home}/bin/runsvc.sh"]
     username admin_user
     working_directory agent_home
     run_at_load true
-    standard_out_path "#{admin_library}/Logs/vsts.agent.#{account_name}.#{agent_name}/stdout.log"
-    standard_error_path "#{admin_library}/Logs/vsts.agent.#{account_name}.#{agent_name}/stderr.log"
+    standard_out_path "#{admin_library}/Logs/vsts.agent.#{account_name}.#{new_resource.agent_name}/stdout.log"
+    standard_error_path "#{admin_library}/Logs/vsts.agent.#{account_name}.#{new_resource.agent_name}/stderr.log"
     environment_variables VSTS_AGENT_SVC: '1'
     session_type 'user'
     action [:create, :enable]
