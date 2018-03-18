@@ -18,9 +18,7 @@ verifier:
 suites:
 - name: default
   run_list:
-  - recipe[vsts_agent_macos::bootstrap]
-  - recipe[vsts_agent_macos::service_audit]
-  - recipe[vsts_agent_macos::teardown]
+  - recipe[vsts_agent_macos::default]
   verifier:
     sudo: false
     inspec_tests:

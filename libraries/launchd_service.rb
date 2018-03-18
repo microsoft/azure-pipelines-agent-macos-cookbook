@@ -6,8 +6,13 @@ module VstsAgentMacOS
       @running = false
     end
 
+    def service_needs_reinstall?
+      service_files = ["#{agent_home}/.service", "#{agent_home}/runsvc.sh", Agent.launchd_plist]
+      service_files.any? { |service_file| !::File.exist? service_file }
+    end
+
     def enabled?
-      running_processes.any? { |process| process[:service_name] == agent_service_name }
+      running_processes.any? { |process| process[:service_name] == Agent.service_name }
     end
 
     def process_id?(output)
@@ -15,7 +20,6 @@ module VstsAgentMacOS
     end
 
     def process_map(command_output = nil)
-      binding.pry
       command_output ||= launchctl_list_output
       capture_pattern = /(?<pid>[\-\d]+)\t(?<exit_code>[\-\d]+)\t(?<service_name>.+)/
       processes = command_output.lines
@@ -29,7 +33,7 @@ module VstsAgentMacOS
     end
 
     def launchctl_list_command
-      shell_out launchctl_command, 'list', @label, user: admin_user
+      shell_out launchctl_command, 'list', @label, user: Agent.admin_user
     end
   end
 end
