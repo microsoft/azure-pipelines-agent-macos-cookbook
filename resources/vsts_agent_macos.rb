@@ -178,6 +178,7 @@ action :install_service do
     owner admin_user
     group staff_group
     mode 0o755
+    cookbook 'vsts_agent_macos'
     notifies :restart, "launchd[vsts.agent.#{account_name}.#{new_resource.agent_name}]", :delayed
   end
 
