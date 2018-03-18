@@ -1,7 +1,8 @@
 require 'spec_helper'
+
 include VstsAgent::VstsHelpers
 
-describe VstsAgent::VstsHelpers, '#process_id?' do
+describe VstsAgent::VstsHelpers do
   context 'when given a proper process id' do
     it 'returns true' do
       expect(process_id?('314')).to be true
@@ -31,6 +32,31 @@ describe VstsAgent::VstsHelpers, '#process_id?' do
   context 'when the version is pinned' do
     it 'returns the correct url' do
       expect(release_download_url('2.126.0')).to eq 'https://vstsagentpackage.azureedge.net/agent/2.126.0/vsts-agent-osx-x64-2.126.0.tar.gz'
+    end
+  end
+end
+
+describe VstsAgent::VstsHelpers, '#service_started?' do
+  let(:launchctl_output_examples) { ::File.join(::File.dirname(__FILE__), 'launchctl_output') }
+
+  context 'when the service is disabled' do
+    let(:disabled_output) { ::IO.read ::File.join(launchctl_output_examples, 'when_disabled.txt') }
+    it 'returns true' do
+      expect(service_started?(disabled_output)).to be false
+    end
+  end
+
+  context 'when the service is enabled and not running' do
+    let(:enabled_and_running) { ::IO.read ::File.join(launchctl_output_examples, 'when_enabled_and_running.txt') }
+    it 'returns true' do
+      expect(service_started?(enabled_and_running)).to be true
+    end
+  end
+
+  context 'when the service is enabled and running' do
+    let(:enabled_and_stopped) { ::IO.read ::File.join(launchctl_output_examples, 'when_enabled_not_running.txt') }
+    it 'returns true' do
+      expect(service_started?(enabled_and_stopped)).to be false
     end
   end
 end

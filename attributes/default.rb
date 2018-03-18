@@ -7,3 +7,4 @@ default['vsts_agent']['account'] = 'americanhanko'
 default['vsts_agent']['agent_pool'] = "American Hanko's Agents"
 default['vsts_agent']['version'] = '2.131.0'
 default['vsts_agent']['additional_environment'] = {}
+default['vsts_agent']['service_name'] = 'com.microsoft.vsts-agent'
