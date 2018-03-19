@@ -5,21 +5,17 @@ include Chef::Mixin::ShellOut
 module VstsAgentMacOS
   class Agent
     class << self
-      def staff_group
-        'staff'
-      end
-
       def release_download_url(version = nil)
         version ||= Chef.node['vsts_agent']['version']
         ::URI.encode("https://vstsagentpackage.azureedge.net/agent/#{version}/vsts-agent-osx-x64-#{version}.tar.gz")
       end
 
       def agent_home
-        Chef::Util::PathHelper.home 'vsts-agent'
+        ::File.join admin_home, 'vsts-agent'
       end
 
       def admin_library
-        Chef::Util::PathHelper.home 'Library'
+        ::File.join admin_home, 'Library'
       end
 
       def service_log_path
@@ -70,6 +66,10 @@ module VstsAgentMacOS
         else
           true
         end
+      end
+
+      def user_group
+        Chef.node['vsts_agent']['user_group']
       end
 
       def credentials?

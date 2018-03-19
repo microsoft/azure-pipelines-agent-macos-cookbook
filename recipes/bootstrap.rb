@@ -5,38 +5,70 @@ homebrew_package 'openssl'
 directory '/usr/local/lib/' do
   recursive true
   owner Agent.admin_user
-  group Agent.staff_group
+  group Agent.user_group
 end
 
 link '/usr/local/lib/libcrypto.1.0.0.dylib' do
   to '/usr/local/opt/openssl/lib/libcrypto.1.0.0.dylib'
   owner Agent.admin_user
-  group Agent.staff_group
+  group Agent.user_group
 end
 
 link '/usr/local/lib/libssl.1.0.0.dylib' do
   to '/usr/local/opt/openssl/lib/libssl.1.0.0.dylib'
   owner Agent.admin_user
-  group Agent.staff_group
+  group Agent.user_group
 end
 
-directory Agent.agent_home do
+directory 'agent home' do
+  path Agent.agent_home
   owner Agent.admin_user
-  group Agent.staff_group
+  group Agent.user_group
 end
 
-directory "#{Agent.admin_library}/LaunchAgents" do
+directory 'per-user agents location' do
+  path ::File.join Agent.admin_library, 'LaunchAgents'
   recursive true
   owner Agent.admin_user
-  group Agent.staff_group
+  group Agent.user_group
+end
+
+directory 'create log directory' do
+  path Agent.service_log_path
+  recursive true
+  owner Agent.admin_user
+  group Agent.user_group
+end
+
+ruby_block 'recursive permissions for logs' do
+  block { ::FileUtils.chown_R Agent.admin_user, Agent.user_group, Agent.service_log_path }
+  action :nothing
+  subscribes :run, 'directory[create log directory]', :immediately
 end
 
 tar_extract Agent.release_download_url do
   target_dir Agent.agent_home
-  group Agent.staff_group
+  group Agent.user_group
   user Agent.admin_user
   action :extract
   only_if { Agent.needs_update? }
+end
+
+template 'create environment file' do
+  path ::File.join Agent.agent_home, '.env'
+  source 'env.erb'
+  owner Agent.admin_user
+  group Agent.user_group
+  mode 0o755
+  cookbook 'vsts_agent_macos'
+end
+
+file 'create path file' do
+  path ::File.join Agent.agent_home, '.path'
+  content ENV['PATH']
+  owner Agent.admin_user
+  group Agent.user_group
+  mode 0o755
 end
 
 execute 'bootstrap the agent' do
@@ -49,17 +81,17 @@ execute 'bootstrap the agent' do
   ignore_failure true
 end
 
-execute 'unconfigured verification' do
+execute 'determine if agent already exists' do
   cwd Agent.agent_home
   user Agent.admin_user
   returns 2
   command ['./bin/Agent.Listener']
   live_stream true
   not_if { Agent.credentials? }
-  notifies :run, 'execute[replace agent]', :immediately
+  notifies :run, 'execute[configure replacement agent]', :immediately
 end
 
-execute 'replace agent' do
+execute 'configure replacement agent' do
   cwd Agent.agent_home
   user Agent.admin_user
   command ['./bin/Agent.Listener', 'configure', '--replace', '--unattended', '--acceptTeeEula']
@@ -68,43 +100,21 @@ execute 'replace agent' do
   action :nothing
 end
 
-directory 'create log directory' do
-  path Agent.service_log_path
-  recursive true
+file 'service script' do
+  path ::File.join Agent.agent_home, 'runsvc.sh'
   owner Agent.admin_user
-  group Agent.staff_group
-end
-
-ruby_block 'recursive permissions for logs' do
-  block { ::FileUtils.chown_R Agent.admin_user, Agent.staff_group, Agent.service_log_path }
-  action :nothing
-  subscribes :run, 'directory[create log directory]', :immediately
-end
-
-file 'service program' do
-  path "#{Agent.agent_home}/runsvc.sh"
-  owner Agent.admin_user
-  group Agent.staff_group
+  group Agent.user_group
   mode 0o775
-  content lazy { ::IO.read "#{Agent.agent_home}/bin/runsvc.sh" }
+  content lazy { ::IO.read ::File.join(Agent.agent_home, 'bin', 'runsvc.sh') }
   action :create
 end
 
 file 'create agent service file' do
-  path "#{Agent.agent_home}/.service"
+  path ::File.join Agent.agent_home, '.service'
   owner Agent.admin_user
-  group Agent.staff_group
+  group Agent.user_group
   content Agent.launchd_plist
   action :create
-end
-
-template 'create environment file' do
-  path "#{Agent.agent_home}/.env"
-  source 'env.erb'
-  owner Agent.admin_user
-  group Agent.staff_group
-  mode 0o755
-  cookbook 'vsts_agent_macos'
 end
 
 launchd 'create launchd service plist' do
