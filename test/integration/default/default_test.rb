@@ -19,7 +19,10 @@ end
 describe file('/Users/vagrant/vsts-agent/.path') do
   it { should exist }
   its('owner') { should eq 'vagrant' }
-  its('content') { should match %r{/usr/local/bin/} }
+  its('content') { should match %r{/usr/local/bin} }
+  its('content') { should match %r{/usr/local/sbin} }
+  its('content') { should match %r{/usr/bin} }
+  its('content') { should match %r{/usr/sbin} }
 end
 
 describe file('/Users/vagrant/vsts-agent/.agent') do
