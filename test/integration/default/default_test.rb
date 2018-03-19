@@ -5,10 +5,26 @@ describe user('vagrant') do
   its('home') { should eq '/Users/vagrant' }
 end
 
-describe launchd_service('vsts.agent.office') do
-  it { should_not be_enabled }
-  it { should_not be_installed }
-  it { should_not be_running }
+describe launchd_service('com.microsoft.vsts-agent') do
+  it { should be_enabled }
+  it { should be_installed }
+  it { should be_running }
+end
+
+describe file('/Users/vagrant/vsts-agent/.credentials') do
+  it { should exist }
+  its('owner') { should eq 'vagrant' }
+end
+
+describe file('/Users/vagrant/vsts-agent/.path') do
+  it { should exist }
+  its('owner') { should eq 'vagrant' }
+  its('content') { should match %r{/usr/local/bin/} }
+end
+
+describe file('/Users/vagrant/vsts-agent/.agent') do
+  it { should exist }
+  its('owner') { should eq 'vagrant' }
 end
 
 describe file('/Users/vagrant/vsts-agent/.env') do

@@ -59,7 +59,7 @@ template 'create environment file' do
   source 'env.erb'
   owner Agent.admin_user
   group Agent.user_group
-  mode 0o755
+  mode 0o644
   cookbook 'vsts_agent_macos'
 end
 
@@ -68,7 +68,7 @@ file 'create path file' do
   content ENV['PATH']
   owner Agent.admin_user
   group Agent.user_group
-  mode 0o755
+  mode 0o644
 end
 
 execute 'bootstrap the agent' do
@@ -143,6 +143,7 @@ macosx_service 'restart agent service' do
   service_name Agent.service_name
   user Agent.admin_user
   action :nothing
-  subscribes :restart, 'template[environment file]'
-  subscribes :restart, 'execute[replace agent]'
+  subscribes :restart, 'template[create environment file]'
+  subscribes :restart, 'template[create path file]'
+  subscribes :restart, 'execute[configure replacement agent]'
 end
