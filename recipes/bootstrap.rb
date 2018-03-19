@@ -32,7 +32,7 @@ directory "#{Agent.admin_library}/LaunchAgents" do
 end
 
 remote_file 'download vsts agent package' do
-  path Chef::Config[:file_cache_path]
+  path ::File.join Chef::Config[:file_cache_path], ::File.basename(Agent.release_download_url)
   source Agent.release_download_url
   owner Agent.admin_user
   group Agent.staff_group
@@ -40,7 +40,7 @@ remote_file 'download vsts agent package' do
 end
 
 tar_extract 'extract vsts agent package' do
-  path Chef::Config[:file_cache_path]
+  download_dir ::File.join Chef::Config[:file_cache_path], ::File.basename(Agent.release_download_url)
   target_dir Agent.agent_home
   group Agent.staff_group
   user Agent.admin_user
