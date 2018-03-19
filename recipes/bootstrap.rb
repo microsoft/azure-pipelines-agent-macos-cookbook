@@ -31,20 +31,11 @@ directory "#{Agent.admin_library}/LaunchAgents" do
   group Agent.staff_group
 end
 
-remote_file 'download vsts agent package' do
-  path ::File.join Chef::Config[:file_cache_path], ::File.basename(Agent.release_download_url)
-  source Agent.release_download_url
-  owner Agent.admin_user
-  group Agent.staff_group
-  show_progress true
-end
-
-tar_extract 'extract vsts agent package' do
-  download_dir ::File.join Chef::Config[:file_cache_path], ::File.basename(Agent.release_download_url)
+tar_extract Agent.release_download_url do
   target_dir Agent.agent_home
   group Agent.staff_group
   user Agent.admin_user
-  action :extract_local
+  action :extract
   only_if { Agent.needs_update? }
 end
 
