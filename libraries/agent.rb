@@ -19,11 +19,11 @@ module VstsAgentMacOS
       end
 
       def service_log_path
-        File.join(admin_library, 'Logs', service_name)
+        ::File.join admin_library, 'Logs', service_name
       end
 
       def admin_home
-        Chef::Util::PathHelper.home
+        ::File.join '/', 'Users', admin_user
       end
 
       def account_url
