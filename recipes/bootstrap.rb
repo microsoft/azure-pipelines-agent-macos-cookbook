@@ -31,33 +31,21 @@ directory "#{Agent.admin_library}/LaunchAgents" do
   group Agent.staff_group
 end
 
-directory "#{Agent.admin_home}/Downloads/vsts-agent" do
-  recursive true
-  owner Agent.admin_user
-  group Agent.staff_group
-end
-
-remote_file Agent.target_path do
+remote_file 'download vsts agent package' do
+  path Chef::Config[:file_cache_path]
   source Agent.release_download_url
   owner Agent.admin_user
   group Agent.staff_group
   show_progress true
 end
 
-tar_extract Agent.target_path do
+tar_extract 'extract vsts agent package' do
+  path Chef::Config[:file_cache_path]
   target_dir Agent.agent_home
   group Agent.staff_group
   user Agent.admin_user
   action :extract_local
   only_if { Agent.needs_update? }
-end
-
-directory "#{Agent.admin_home}/Downloads/vsts-agent" do
-  user Agent.admin_user
-  group Agent.staff_group
-  action :nothing
-  recursive true
-  subscribes :delete, 'tar_extract[vsts agent source]', :delayed
 end
 
 execute 'bootstrap the agent' do
@@ -70,17 +58,17 @@ execute 'bootstrap the agent' do
   ignore_failure true
 end
 
-execute 'verify agent unconfigured' do
+execute 'unconfigured verification' do
   cwd Agent.agent_home
   user Agent.admin_user
   returns 2
   command ['./bin/Agent.Listener']
   live_stream true
   not_if { Agent.credentials? }
-  notifies :run, 'execute[replace the agent]', :immediately
+  notifies :run, 'execute[replace agent]', :immediately
 end
 
-execute 'replace the agent' do
+execute 'replace agent' do
   cwd Agent.agent_home
   user Agent.admin_user
   command ['./bin/Agent.Listener', 'configure', '--replace', '--unattended', '--acceptTeeEula']
@@ -137,23 +125,23 @@ launchd 'create launchd service plist' do
   username Agent.admin_user
   working_directory Agent.agent_home
   run_at_load true
-  standard_out_path ::File.join(Agent.service_log_path, 'stdout.log')
-  standard_error_path ::File.join(Agent.service_log_path, 'stderr.log')
+  standard_out_path ::File.join Agent.service_log_path, 'stdout.log'
+  standard_error_path ::File.join Agent.service_log_path, 'stderr.log'
   environment_variables VSTS_AGENT_SVC: '1'
   session_type 'user'
-  action [:create, :enable]
+  action :create
 end
 
-macosx_service 'restart-agent-service' do
+macosx_service 'start and enable agent service' do
   service_name Agent.service_name
   user Agent.admin_user
   action [:enable, :start]
 end
 
-macosx_service 'restart-agent-service' do
+macosx_service 'restart agent service' do
   service_name Agent.service_name
   user Agent.admin_user
   action :nothing
   subscribes :restart, 'template[environment file]'
-  subscribes :run, 'execute[replace the agent]'
+  subscribes :restart, 'execute[replace agent]'
 end

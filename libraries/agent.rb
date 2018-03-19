@@ -51,10 +51,6 @@ module VstsAgentMacOS
           HOME: admin_home }
       end
 
-      def target_path
-        ::File.join(agent_home, ::File.basename(release_download_url))
-      end
-
       def agent_data
         vsts_data = Chef.node['vsts_agent']
         Chef::DataBagItem.load(vsts_data['data_bag'], vsts_data['data_bag_item'])
