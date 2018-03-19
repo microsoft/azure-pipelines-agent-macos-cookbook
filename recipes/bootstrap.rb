@@ -63,10 +63,30 @@ end
 execute 'bootstrap the agent' do
   cwd Agent.agent_home
   user Agent.admin_user
-  command ['./bin/Agent.Listener', 'configure', '--acceptTeeEula', '--unattended']
+  command ['./bin/Agent.Listener', 'configure', '--unattended', '--acceptTeeEula']
   environment Agent.vsts_environment
   not_if { Agent.credentials? }
   live_stream true
+  ignore_failure true
+end
+
+execute 'verify agent unconfigured' do
+  cwd Agent.agent_home
+  user Agent.admin_user
+  returns 2
+  command ['./bin/Agent.Listener']
+  live_stream true
+  not_if { Agent.credentials? }
+  notifies :run, 'execute[replace the agent]', :immediately
+end
+
+execute 'replace the agent' do
+  cwd Agent.agent_home
+  user Agent.admin_user
+  command ['./bin/Agent.Listener', 'configure', '--replace', '--unattended', '--acceptTeeEula']
+  environment Agent.vsts_environment
+  live_stream true
+  action :nothing
 end
 
 directory 'create log directory' do
@@ -82,37 +102,12 @@ ruby_block 'recursive permissions for logs' do
   subscribes :run, 'directory[create log directory]', :immediately
 end
 
-file "#{Agent.agent_home}/runsvc.sh" do
+file 'service program' do
+  path "#{Agent.agent_home}/runsvc.sh"
   owner Agent.admin_user
   group Agent.staff_group
   mode 0o775
-  content <<-EOF
-#!/bin/bash
-
-# convert SIGTERM signal to SIGINT
-# for more info on how to propagate SIGTERM to a child process see:
-# http://veithen.github.io/2014/11/16/sigterm-propagation.html
-trap 'kill -INT $PID' TERM INT
-
-if [ -f ".env" ]; then
-    export $(cat .env)
-fi
-
-if [ -f ".path" ]; then
-    # configure
-    export PATH=`cat .path`
-    echo ".path=${PATH}"
-fi
-
-# insert anything to setup env when running as a service
-
-# run the host process which keep the listener alive
-./externals/node/bin/node ./bin/AgentService.js &
-PID=$!
-wait $PID
-trap - TERM INT
-wait $PID
-EOF
+  content lazy { ::IO.read "#{Agent.agent_home}/bin/runsvc.sh" }
   action :create
 end
 
@@ -160,4 +155,5 @@ macosx_service 'restart-agent-service' do
   user Agent.admin_user
   action :nothing
   subscribes :restart, 'template[environment file]'
+  subscribes :run, 'execute[replace the agent]'
 end
