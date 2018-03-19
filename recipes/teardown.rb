@@ -1,25 +1,19 @@
-macosx_service 'stop-agent-service' do
+macosx_service 'stop agent service' do
   service_name Agent.service_name
   user Agent.admin_user
   action [:disable, :stop]
 end
 
-file 'delete-service-script' do
-  path "#{Agent.agent_home}/runsvc.sh"
-  action :nothing
-  subscribes :delete, 'macosx_service[stop-agent-service]', :immediately
-end
-
-file 'delete-service-name-file' do
+file 'delete service name file' do
   path "#{Agent.agent_home}/.service"
   action :nothing
-  subscribes :delete, 'file[delete-service-script]', :immediately
+  subscribes :delete, 'file[delete service script]', :immediately
 end
 
-file 'delete-service-plist' do
+file 'delete service plist' do
   path Agent.launchd_plist
   action :nothing
-  subscribes :delete, 'file[delete-service-name-file]', :immediately
+  subscribes :delete, 'file[delete service name file]', :immediately
 end
 
 execute 'unconfigure VSTS agent' do
@@ -27,8 +21,7 @@ execute 'unconfigure VSTS agent' do
   user Agent.admin_user
   command ['./bin/Agent.Listener', 'remove']
   environment Agent.vsts_environment
-  not_if { Agent.credentials? }
   live_stream true
   action :nothing
-  subscribes :delete, 'file[delete-service-name-file]', :immediately
+  subscribes :delete, 'file[delete service name file]', :immediately
 end

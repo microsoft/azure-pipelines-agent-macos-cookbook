@@ -65,7 +65,6 @@ end
 
 file 'create path file' do
   path ::File.join Agent.agent_home, '.path'
-  content ENV['PATH']
   owner Agent.admin_user
   group Agent.user_group
   mode 0o644
@@ -98,15 +97,6 @@ execute 'configure replacement agent' do
   environment Agent.vsts_environment
   live_stream true
   action :nothing
-end
-
-file 'service script' do
-  path ::File.join Agent.agent_home, 'runsvc.sh'
-  owner Agent.admin_user
-  group Agent.user_group
-  mode 0o775
-  content lazy { ::IO.read ::File.join(Agent.agent_home, 'bin', 'runsvc.sh') }
-  action :create
 end
 
 file 'create agent service file' do

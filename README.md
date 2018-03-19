@@ -18,12 +18,6 @@ Usage: `vsts_agent_macos::teardown`
 
 Remove an existing agent from the specified VSTS server
 
-### Service audit
-
-Usage: `vsts_agent_macos::service_audit`
-
-A during-converge test. Include this recipe to verify that the agent service is running. If it isn't, raise an exception.
-
 Attributes
 ----------
 
