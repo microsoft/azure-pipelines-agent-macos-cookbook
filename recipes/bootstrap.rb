@@ -125,13 +125,13 @@ end
 
 macosx_service 'start and enable agent service' do
   service_name Agent.service_name
-  user Agent.admin_user
+  plist Agent.service_name
   action [:enable, :start]
 end
 
 macosx_service 'restart agent service' do
   service_name Agent.service_name
-  user Agent.admin_user
+  plist Agent.service_name
   action :nothing
   subscribes :restart, 'template[create environment file]'
   subscribes :restart, 'template[create path file]'
