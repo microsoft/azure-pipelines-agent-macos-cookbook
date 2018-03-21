@@ -53,7 +53,7 @@ module VstsAgentMacOS
       end
 
       def launchd_plist
-        ::File.join(admin_library, 'LaunchAgents', "#{service_name}.plist")
+        ::File.join('/', 'Library', 'LaunchAgents', "#{service_name}.plist")
       end
 
       def needs_update?
