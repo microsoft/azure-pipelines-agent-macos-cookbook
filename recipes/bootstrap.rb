@@ -54,13 +54,7 @@ template 'create environment file' do
   group Agent.user_group
   mode 0o644
   cookbook 'vsts_agent_macos'
-end
-
-file 'create path file' do
-  path ::File.join Agent.agent_home, '.path'
-  owner Agent.admin_user
-  group Agent.user_group
-  mode 0o644
+  notifies :restart, 'macosx_service[vsts agent launch agent]'
 end
 
 execute 'bootstrap the agent' do
@@ -90,6 +84,7 @@ execute 'configure replacement agent' do
   environment Agent.vsts_environment
   live_stream true
   action :nothing
+  notifies :restart, 'macosx_service[vsts agent launch agent]'
 end
 
 file 'create agent service file' do
@@ -116,17 +111,8 @@ launchd 'create launchd service plist' do
   action [:create, :enable]
 end
 
-macosx_service 'start and enable agent service' do
+macosx_service 'vsts agent launch agent' do
   service_name Agent.service_name
   plist Agent.launchd_plist
   action [:enable, :start]
-end
-
-macosx_service 'restart agent service' do
-  service_name Agent.service_name
-  plist Agent.launchd_plist
-  action :nothing
-  subscribes :restart, 'template[create environment file]'
-  subscribes :restart, 'template[create path file]'
-  subscribes :restart, 'execute[configure replacement agent]'
 end
