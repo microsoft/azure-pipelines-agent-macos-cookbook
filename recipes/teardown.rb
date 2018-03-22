@@ -1,11 +1,11 @@
 macosx_service 'stop agent service' do
   service_name Agent.service_name
-  user Agent.admin_user
+  plist Agent.launchd_plist
   action [:disable, :stop]
 end
 
 file 'delete service name file' do
-  path "#{Agent.agent_home}/.service"
+  path ::File.join Agent.agent_home, '.service'
   action :nothing
   subscribes :delete, 'file[delete service script]', :immediately
 end

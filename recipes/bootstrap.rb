@@ -26,13 +26,6 @@ directory 'agent home' do
   group Agent.user_group
 end
 
-directory 'per-user agents location' do
-  path ::File.join Agent.admin_library, 'LaunchAgents'
-  recursive true
-  owner Agent.admin_user
-  group Agent.user_group
-end
-
 directory 'create log directory' do
   path Agent.service_log_path
   recursive true
