@@ -15,16 +15,21 @@ end
 shared_context 'when converging the recipe' do
   shared_examples 'convergence without error' do
     it 'converges successfully' do
-      allow(Agent).to receive(:agent_data).and_return(false)
-      chef_run.node.normal['vsts_agent']['data_bag'] = 'vsts'
-      chef_run.node.normal['vsts_agent']['data_bag_item'] = 'build_agent'
       expect { chef_run }.to_not raise_error
     end
   end
 end
 
 describe 'vsts_agent_macos::bootstrap' do
-  let(:chef_run) { ChefSpec::SoloRunner.new(node_attributes) }
+  let(:chef_run) do
+    runner = ChefSpec::SoloRunner.new(node_attributes)
+    runner.converge(described_recipe)
+  end
+
+  before do
+    allow(Chef::DataBagItem).to receive(:load).with('vsts', 'build_agent').and_return(personal_access_token: 'p9817234jhbasdfo87q234bnsadfasdf234')
+    stub_command('which git').and_return('/usr/bin/git')
+  end
 
   let(:node_attributes) do
     { platform: 'mac_os_x', version: '10.13' }
