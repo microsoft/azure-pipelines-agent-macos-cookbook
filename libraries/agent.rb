@@ -1,5 +1,5 @@
 require 'uri'
-require 'pry'
+
 include Chef::Mixin::ShellOut
 
 module VstsAgentMacOS
