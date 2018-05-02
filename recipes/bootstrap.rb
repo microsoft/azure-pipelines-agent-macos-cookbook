@@ -61,7 +61,7 @@ execute 'bootstrap the agent' do
   cwd Agent.agent_home
   user Agent.admin_user
   command ['./bin/Agent.Listener', 'configure', '--unattended', '--acceptTeeEula']
-  environment Agent.vsts_environment
+  environment lazy { Agent.vsts_environment }
   not_if { Agent.credentials? }
   live_stream true
   ignore_failure true
@@ -81,7 +81,7 @@ execute 'configure replacement agent' do
   cwd Agent.agent_home
   user Agent.admin_user
   command ['./bin/Agent.Listener', 'configure', '--replace', '--unattended', '--acceptTeeEula']
-  environment Agent.vsts_environment
+  environment lazy { Agent.vsts_environment }
   live_stream true
   action :nothing
   notifies :restart, 'macosx_service[vsts agent launch agent]'
