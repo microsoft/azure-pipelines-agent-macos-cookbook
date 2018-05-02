@@ -20,7 +20,7 @@ execute 'unconfigure VSTS agent' do
   cwd Agent.agent_home
   user Agent.admin_user
   command ['./bin/Agent.Listener', 'remove']
-  environment Agent.vsts_environment
+  environment lazy { Agent.vsts_environment }
   live_stream true
   action :nothing
   subscribes :delete, 'file[delete service name file]', :immediately
