@@ -60,7 +60,7 @@ end
 execute 'bootstrap the agent' do
   cwd Agent.agent_home
   user Agent.admin_user
-  command ['./bin/Agent.Listener', 'configure', '--unattended', '--acceptTeeEula']
+  command ['./bin/Agent.Listener', 'configure', Agent.configuration_type, '--unattended', '--acceptTeeEula']
   environment lazy { Agent.vsts_environment }
   not_if { Agent.credentials? }
   live_stream true
@@ -80,7 +80,7 @@ end
 execute 'configure replacement agent' do
   cwd Agent.agent_home
   user Agent.admin_user
-  command ['./bin/Agent.Listener', 'configure', '--replace', '--unattended', '--acceptTeeEula']
+  command ['./bin/Agent.Listener', 'configure', Agent.configuration_type, '--replace', '--unattended', '--acceptTeeEula']
   environment lazy { Agent.vsts_environment }
   live_stream true
   action :nothing

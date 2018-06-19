@@ -93,6 +93,19 @@ report back to the server.
 default['vsts_agent']['additional_environment']
 ```
 
+Deployment Groups
+-----------------
+
+This cookbook supports adding release targets to VSTS Deployment groups. To use this feature,
+set the `default['vsts_agent']['deployment_target']` to `true` and make sure you have the appropriate
+values set for the following attributes (default values are shown below):
+
+```ruby
+default['vsts_agent']['deployment_pool'] = "American Hanko's Deployment Targets"
+default['vsts_agent']['project'] = 'American Hanko'
+default['vsts_agent']['work'] = '_work'
+```
+
 Required Data Bag Item
 ----------------------
 
