@@ -11,8 +11,8 @@ provisioner:
   require_chef_omnibus: true
 
 platforms:
-- name: apex/macos-10.12.6
-- name: apex/macos-10.13.3
+- name: microsoft/macos-sierra
+- name: microsoft/macos-high-sierra
 
 verifier:
   name: inspec
@@ -34,6 +34,29 @@ suites:
       additional_environment:
         VAGRANT_SERVER_URL: http://office-infra-boxes.corp.microsoft.com
         MEAL_ENDS_WITH: sauce
+    homebrew:
+      auto-update: false
+      owner: vagrant
+
+- name: deployment_target
+  run_list:
+  - recipe[vsts_agent_macos::default]
+  verifier:
+    sudo: false
+    inspec_tests:
+    - test/integration/default
+  attributes:
+    vsts_agent:
+      deployment_pool: macOS Netboot
+      account: office
+      data_bag: vsts
+      data_bag_item: office_build_agent
+      deployment_target: true
+      project: APEX
+      work: _work
+      additional_environment:
+        VAGRANT_SERVER_URL: http://office-infra-boxes.corp.microsoft.com
+        MEAL_STARTS_WITH: noodles
     homebrew:
       auto-update: false
       owner: vagrant
