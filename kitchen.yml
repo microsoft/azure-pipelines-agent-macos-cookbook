@@ -1,30 +1,40 @@
 ---
-driver:
-  name: vagrant
-  provider: parallels
-
 provisioner:
   always_update_cookbooks: true
-  enforce_idempotency: true
+  product_name: chef
+  install_strategy: always
   multiple_converge: 2
-  name: chef_zero
-  require_chef_omnibus: true
+  enforce_idempotency: true
 
 platforms:
-- name: microsoft/macos-sierra
-- name: microsoft/macos-high-sierra
+- name: sierra
+  driver:
+    name: vagrant
+    box: microsoft/macos-sierra
+    box_url: http://office-infra-boxes.corp.microsoft.com:8099/microsoft/macos-high-sierra
+    provider: parallels
+    box_check_update: true
+    gui: false
+
+- name: high-sierra
+  driver:
+    name: vagrant
+    box: microsoft/macos-high-sierra
+    box_url: http://office-infra-boxes.corp.microsoft.com:8099/microsoft/macos-high-sierra
+    provider: vmware_fusion
+    box_check_update: true
+    gui: false
 
 verifier:
   name: inspec
+  sudo: false
+  inspec_tests:
+  - test/integration/default
 
 suites:
-- name: default
+- name: build_agent
   run_list:
   - recipe[vsts_agent_macos::default]
-  verifier:
-    sudo: false
-    inspec_tests:
-    - test/integration/default
   attributes:
     vsts_agent:
       agent_pool: ApexInfra macOS
@@ -33,7 +43,6 @@ suites:
       data_bag_item: office_build_agent
       additional_environment:
         VAGRANT_SERVER_URL: http://office-infra-boxes.corp.microsoft.com
-        MEAL_ENDS_WITH: sauce
     homebrew:
       auto-update: false
       owner: vagrant
@@ -41,10 +50,6 @@ suites:
 - name: deployment_target
   run_list:
   - recipe[vsts_agent_macos::default]
-  verifier:
-    sudo: false
-    inspec_tests:
-    - test/integration/default
   attributes:
     vsts_agent:
       deployment_pool: macOS Netboot
@@ -56,7 +61,6 @@ suites:
       work: _work
       additional_environment:
         VAGRANT_SERVER_URL: http://office-infra-boxes.corp.microsoft.com
-        MEAL_STARTS_WITH: noodles
     homebrew:
       auto-update: false
       owner: vagrant
