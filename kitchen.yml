@@ -1,6 +1,5 @@
 ---
 provisioner:
-  always_update_cookbooks: true
   product_name: chef
   install_strategy: always
   multiple_converge: 2
@@ -14,7 +13,6 @@ platforms:
     box_url: http://office-infra-boxes.corp.microsoft.com:8099/microsoft/macos-high-sierra
     provider: parallels
     box_check_update: true
-    gui: false
 
 - name: high-sierra
   driver:
