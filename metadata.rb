@@ -10,5 +10,5 @@ chef_version '>= 13.0' if respond_to?(:chef_version)
 source_url 'https://github.com/americanhanko/vsts-agent-macos-cookbook'
 issues_url 'https://github.com/americanhanko/vsts-agent-macos-cookbook/issues'
 
-depends 'homebrew', '~> 4.3.0'
+depends 'homebrew', '~> 5.0'
 depends 'tar', '~> 2.1.0'
