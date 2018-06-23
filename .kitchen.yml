@@ -19,9 +19,8 @@ platforms:
     name: vagrant
     box: microsoft/macos-high-sierra
     box_url: http://office-infra-boxes.corp.microsoft.com:8099/microsoft/macos-high-sierra
-    provider: vmware_fusion
+    provider: parallels
     box_check_update: true
-    gui: false
 
 verifier:
   name: inspec
