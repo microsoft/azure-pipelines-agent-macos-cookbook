@@ -10,7 +10,7 @@ platforms:
   driver:
     name: vagrant
     box: microsoft/macos-sierra
-    box_url: http://office-infra-boxes.corp.microsoft.com:8099/microsoft/macos-high-sierra
+    box_url: http://office-infra-boxes.corp.microsoft.com:8099/microsoft/macos-sierra
     provider: parallels
     box_check_update: true
 
@@ -24,6 +24,10 @@ platforms:
 
 verifier:
   name: inspec
+  format: junit:/tmp/junit.xml
+  reporter:
+  - progress
+  - junit:/tmp/junit.xml
   sudo: false
   inspec_tests:
   - test/integration/default
