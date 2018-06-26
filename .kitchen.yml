@@ -13,6 +13,7 @@ platforms:
     box_url: http://office-infra-boxes.corp.microsoft.com:8099/microsoft/macos-sierra
     provider: parallels
     box_check_update: true
+    box_version: 10.12.6-16G27
 
 - name: high-sierra
   driver:
@@ -21,10 +22,11 @@ platforms:
     box_url: http://office-infra-boxes.corp.microsoft.com:8099/microsoft/macos-high-sierra
     provider: parallels
     box_check_update: true
+    box_version: 10.13.5-17F77
 
 verifier:
   name: inspec
-  format: junit:/tmp/junit.xml
+  format: junit:/tmp/inspec.xml
   reporter:
   - progress
   - junit:/tmp/junit.xml
