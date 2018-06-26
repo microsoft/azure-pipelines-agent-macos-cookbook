@@ -23,5 +23,5 @@ execute 'unconfigure VSTS agent' do
   environment lazy { Agent.vsts_environment }
   live_stream true
   action :nothing
-  subscribes :delete, 'file[delete service name file]', :immediately
+  subscribes :run, 'file[delete service name file]', :immediately
 end
