@@ -40,7 +40,7 @@ suites:
   - recipe[vsts_agent_macos::default]
   attributes:
     vsts_agent:
-      agent_pool: ApexInfra macOS
+      agent_pool: OXO Hub Eng Mac Pool
       account: office
       data_bag: vsts
       data_bag_item: office_build_agent
@@ -55,7 +55,7 @@ suites:
   - recipe[vsts_agent_macos::default]
   attributes:
     vsts_agent:
-      deployment_pool: macOS Netboot
+      deployment_pool: Cookbook Group
       account: office
       data_bag: vsts
       data_bag_item: office_build_agent
