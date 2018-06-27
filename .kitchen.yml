@@ -29,7 +29,7 @@ verifier:
   format: junit:/tmp/inspec.xml
   reporter:
   - progress
-  - junit:/tmp/junit.xml
+  - junit:/tmp/inspec.xml
   sudo: false
   inspec_tests:
   - test/integration/default
