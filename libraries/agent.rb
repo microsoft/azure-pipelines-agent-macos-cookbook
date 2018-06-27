@@ -44,7 +44,8 @@ module VstsAgentMacOS
           VSTS_AGENT_INPUT_TOKEN: agent_data[:personal_access_token],
           VSTS_AGENT_INPUT_POOL: Chef.node['vsts_agent']['agent_pool'],
           VSTS_AGENT_INPUT_AGENT: Chef.node['vsts_agent']['agent_name'],
-          VSTS_AGENT_INPUT_DEPLOYMENTGROUPNAME: Chef.node['vsts_agent']['deployment_pool'],
+          VSTS_AGENT_INPUT_DEPLOYMENTGROUPNAME: Chef.node['vsts_agent']['deployment_group'],
+          VSTS_AGENT_INPUT_DEPLOYMENTGROUPTAGS: Chef.node['vsts_agent']['deployment_group_tags'],
           VSTS_AGENT_INPUT_PROJECTNAME: Chef.node['vsts_agent']['project'],
           VSTS_AGENT_INPUT_WORK: Chef.node['vsts_agent']['work'],
           HOME: admin_home }
@@ -72,7 +73,7 @@ module VstsAgentMacOS
       end
 
       def configuration_type
-        Chef.node['vsts_agent']['deployment_target'] ? '--deploymentgroup' : ''
+        Chef.node['vsts_agent']['deployment_group'].nil? ? '--deploymentgroup' : ''
       end
 
       def user_group

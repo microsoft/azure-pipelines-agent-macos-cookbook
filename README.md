@@ -35,7 +35,7 @@ default['vsts_agent']['agent_name']
 
 The version of the agent to install.
 
-**Default value:** `'2.129.0'`
+**Default value:** `'2.134.2'`
 
 ```ruby
 default['vsts_agent']['version']
@@ -93,17 +93,26 @@ report back to the server.
 default['vsts_agent']['additional_environment']
 ```
 
-Deployment Groups
------------------
+Deployment Group
+----------------
 
-This cookbook supports adding release targets to VSTS Deployment groups. To use this feature,
-set the `default['vsts_agent']['deployment_target']` to `true` and make sure you have the appropriate
-values set for the following attributes (default values are shown below):
+This cookbook supports adding agents to VSTS Deployment Groups. To use this feature, simply
+set the `default['vsts_agent']['deployment_group']` attribute. In addition, make sure you have
+the appropriate values set for the following attributes shown below. By default, we assume that
+if the `default['vsts_agent']['deployment_group']` attribute is `nil` we are bootstrapping
+a build agent and _not_ a deployment agent. This means if you set this attribute, it will
+override the default functionality.
 
 ```ruby
-default['vsts_agent']['deployment_pool'] = "American Hanko's Deployment Targets"
-default['vsts_agent']['project'] = 'American Hanko'
-default['vsts_agent']['work'] = '_work'
+default['vsts_agent']['deployment_group'] = nil
+default['vsts_agent']['project'] = nil
+default['vsts_agent']['work'] = nil
+```
+
+### Optional
+
+```ruby
+default['vsts_agent']['deployment_group_tags'] = nil
 ```
 
 Required Data Bag Item

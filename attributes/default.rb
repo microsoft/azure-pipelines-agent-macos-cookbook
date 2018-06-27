@@ -11,7 +11,8 @@ default['vsts_agent']['version'] = '2.134.2'
 default['vsts_agent']['additional_environment'] = {}
 default['vsts_agent']['service_name'] = 'com.microsoft.vsts-agent'
 
-default['vsts_agent']['deployment_target'] = false
-default['vsts_agent']['deployment_pool'] = "American Hanko's Deployment Targets"
-default['vsts_agent']['project'] = 'American Hanko'
-default['vsts_agent']['work'] = '_work'
+default['vsts_agent']['deployment_group'] = nil
+
+default['vsts_agent']['deployment_group_tags'] = nil
+default['vsts_agent']['project'] = nil
+default['vsts_agent']['work'] = nil

@@ -26,9 +26,8 @@ platforms:
 
 verifier:
   name: inspec
-  format: junit:/tmp/inspec.xml
-  reporter:
-  - progress
+  format:
+  - cli
   - junit:/tmp/inspec.xml
   sudo: false
   inspec_tests:
@@ -50,16 +49,17 @@ suites:
       auto-update: false
       owner: vagrant
 
-- name: deployment_target
+- name: deployment_group
   run_list:
   - recipe[vsts_agent_macos::default]
   attributes:
     vsts_agent:
-      deployment_pool: Cookbook Group
+      deployment_group: Cookbook Group
+      deployment_group_tags: test,kitchen,vagrant,chef
       account: office
       data_bag: vsts
       data_bag_item: office_build_agent
-      deployment_target: true
+      deployment_group: true
       project: APEX
       work: _work
       additional_environment:
