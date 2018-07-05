@@ -73,7 +73,7 @@ module VstsAgentMacOS
       end
 
       def configuration_type
-        Chef.node['vsts_agent']['deployment_group'].nil? ? '--deploymentgroup' : ''
+        Chef.node['vsts_agent']['deployment_group'].nil? ? '' : '--deploymentgroup'
       end
 
       def user_group
