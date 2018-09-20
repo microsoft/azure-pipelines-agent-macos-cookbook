@@ -1,6 +1,5 @@
-include_recipe 'homebrew::default'
-homebrew_package 'git'
-homebrew_package 'openssl'
+package 'git'
+package 'openssl'
 
 directory '/usr/local/lib/' do
   recursive true

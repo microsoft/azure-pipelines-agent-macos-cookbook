@@ -9,10 +9,12 @@ at_exit { ChefSpec::Coverage.report! }
 RSpec.configure do |config|
   config.color = true
   config.formatter = :documentation
-  config.log_level = :error
+  config.log_level = :trace
 end
 
 shared_context 'when converging the recipe' do
+  default_attributes['homebrew']['enable-analytics'] = false
+
   shared_examples 'convergence without error' do
     it 'converges successfully' do
       expect { chef_run }.to_not raise_error
@@ -28,7 +30,6 @@ describe 'vsts_agent_macos::bootstrap' do
 
   before do
     allow(Chef::DataBagItem).to receive(:load).with('vsts', 'build_agent').and_return(personal_access_token: 'p9817234jhbasdfo87q234bnsadfasdf234')
-    stub_command('which git').and_return('/usr/bin/git')
   end
 
   let(:node_attributes) do
