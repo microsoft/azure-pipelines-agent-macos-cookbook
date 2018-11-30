@@ -12,4 +12,5 @@ supports 'mac_os_x'
 source_url 'https://github.com/americanhanko/vsts-agent-macos-cookbook'
 issues_url 'https://github.com/americanhanko/vsts-agent-macos-cookbook/issues'
 
+depends 'homebrew', '~> 5.0.0'
 depends 'tar', '~> 2.1.0'
