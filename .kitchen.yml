@@ -15,11 +15,11 @@ platforms:
     box_check_update: true
     box_version: 10.13.6.pre.v2
 
-- name: high-sierra
+- name: mojave
   driver:
     name: vagrant
     box: microsoft/macos-mojave
-    box_url: http://office-infra-boxes.corp.microsoft.com:8099/microsoft/macos-high-sierra
+    box_url: http://office-infra-boxes.corp.microsoft.com:8099/microsoft/macos-mojave
     provider: parallels
     box_check_update: true
     box_version: 10.14.1
