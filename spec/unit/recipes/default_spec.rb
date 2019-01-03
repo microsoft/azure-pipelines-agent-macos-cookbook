@@ -21,9 +21,9 @@ shared_context 'when converging the recipe' do
 end
 
 describe 'vsts_agent_macos::bootstrap' do
-  let(:chef_run) do
-    runner = ChefSpec::SoloRunner.new(node_attributes)
-    runner.converge(described_recipe)
+  platform 'mac_os_x', '10.14'
+  default_attributes['homebrew']['enable-analytics'] = false
+  default_attributes['vsts_agent']['agent_name'] = 'com.microsoft.vsts-agent'
   end
 
   before do
