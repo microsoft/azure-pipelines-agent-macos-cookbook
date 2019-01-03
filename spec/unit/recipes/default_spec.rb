@@ -4,12 +4,10 @@ require_relative '../../../libraries/agent'
 
 include VstsAgentMacOS
 
-at_exit { ChefSpec::Coverage.report! }
-
 RSpec.configure do |config|
   config.color = true
   config.formatter = :documentation
-  config.log_level = :trace
+end
 end
 
 shared_context 'when converging the recipe' do
