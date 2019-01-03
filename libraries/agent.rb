@@ -99,7 +99,28 @@ module VstsAgentMacOS
       def admin_user
         Chef.node['vsts_agent']['admin_user']
       end
+
+      def launchd_list_output
+        shell_out('launchctl list').stdout.lines
+      end
+
+      def launchd_service
+        line = launchd_list_output.select { |label| label.include? agent_name }[0]
+        entry = line.strip.split(/\t/)
+        { 'pid' => entry[0], 'exit_status' => entry[1], 'name' => entry[2] }
+      end
+
+      def pid
+        return nil unless launchd_service['pid'].integer?
+        launchd_service['pid']
+      end
     end
+  end
+end
+
+class String
+  def integer?
+    to_i.to_s == self
   end
 end
 
