@@ -107,7 +107,7 @@ launchd 'create launchd service plist' do
   standard_error_path ::File.join Agent.service_log_path, 'stderr.log'
   environment_variables VSTS_AGENT_SVC: '1'
   session_type 'user'
-  action [:create, :enable]
+  action :create
 end
 
 macosx_service 'vsts agent launch agent' do
