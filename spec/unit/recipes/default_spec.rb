@@ -9,7 +9,7 @@ RSpec.configure do |config|
   config.formatter = :documentation
 end
 
-shared_context 'with a running VSTS launchd process' do
+shared_context 'with the VSTS launchd process listed and running' do
   before do
     allow(Agent).to receive(:launchd_list_output).and_return(["PID\tStatus\tLabel\n",
                                                               "240\t0\tcom.apple.trustd.agent\n",
@@ -25,7 +25,8 @@ shared_context 'with a running VSTS launchd process' do
                                                               "-\t0\tcom.apple.screensharing.agent\n"])
   end
   shared_examples 'not affecting the VSTS agent process' do
-    it { is_expected.to_not start_service('vsts agent launch agent') }
+    it { is_expected.to_not start_macosx_service('vsts agent launch agent') }
+    it { is_expected.to_not enable_macosx_service('vsts agent launch agent') }
 
     it 'converges successfully' do
       expect { chef_run }.to_not raise_error
@@ -33,7 +34,32 @@ shared_context 'with a running VSTS launchd process' do
   end
 end
 
-shared_context 'with no running VSTS launchd process' do
+shared_context 'with the VSTS launchd process listed but not running' do
+  before do
+    allow(Agent).to receive(:launchd_list_output).and_return(["PID\tStatus\tLabel\n",
+                                                              "240\t0\tcom.apple.trustd.agent\n",
+                                                              "-\t0\tcom.apple.MailServiceAgent\n",
+                                                              "-\t0\tcom.apple.mdworker.mail\n",
+                                                              "-\t0\tcom.apple.mdworker.single.02000000-0000-0000-0000-000000000000\n",
+                                                              "260\t0\tcom.apple.Finder\n",
+                                                              "-\t0\tcom.apple.PackageKit.InstallStatus\n",
+                                                              "-\t0\tcom.microsoft.vsts-agent\n",
+                                                              "365\t0\tcom.apple.iconservices.iconservicesagent\n",
+                                                              "303\t0\tcom.apple.ContactsAgent\n",
+                                                              "-\t0\tcom.apple.ManagedClientAgent.agent\n",
+                                                              "-\t0\tcom.apple.screensharing.agent\n"])
+  end
+  shared_examples 'starting but not enabling the VSTS agent process' do
+    it { is_expected.to start_macosx_service('vsts agent launch agent') }
+    it { is_expected.to_not enable_macosx_service('vsts agent launch agent') }
+
+    it 'converges successfully' do
+      expect { chef_run }.to_not raise_error
+    end
+  end
+end
+
+shared_context 'with the VSTS launchd process not listed and not running' do
   before do
     allow(Agent).to receive(:launchd_list_output).and_return(["PID\tStatus\tLabel\n",
                                                               "-\t0\tcom.google.Chrome.22128\n",
@@ -51,7 +77,8 @@ shared_context 'with no running VSTS launchd process' do
   end
 
   shared_examples 'starting and enabling the VSTS agent process' do
-    it { is_expected.to start_service('Adios world') }
+    it { is_expected.to start_macosx_service('vsts agent launch agent') }
+    it { is_expected.to enable_macosx_service('vsts agent launch agent') }
 
     it 'converges successfully' do
       expect { chef_run }.to_not raise_error
@@ -68,13 +95,18 @@ describe 'vsts_agent_macos::bootstrap' do
     allow(Chef::DataBagItem).to receive(:load).with('vsts', 'build_agent').and_return(personal_access_token: 'p9817234jhbasdfo87q234bnsadfasdf234')
   end
 
-  describe 'with a running VSTS launchd process' do
-    include_context 'with a running VSTS launchd process'
+  describe 'VSTS launchd process already listed and running' do
+    include_context 'with the VSTS launchd process listed and running'
     it_behaves_like 'not affecting the VSTS agent process'
   end
 
-  describe 'with no running VSTS launchd process' do
-    include_context 'with no running VSTS launchd process'
+  describe 'VSTS launchd process listed but not currently running' do
+    include_context 'with the VSTS launchd process listed but not running'
+    it_behaves_like 'starting but not enabling the VSTS agent process'
+  end
+
+  describe 'VSTS launchd process not listed and presumed not running' do
+    include_context 'with the VSTS launchd process not listed and not running'
     it_behaves_like 'starting and enabling the VSTS agent process'
   end
 end
