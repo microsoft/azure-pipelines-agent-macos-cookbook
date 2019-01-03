@@ -114,4 +114,5 @@ macosx_service 'vsts agent launch agent' do
   service_name Agent.service_name
   plist Agent.launchd_plist
   action [:enable, :start]
+  only_if { Agent.pid.nil? }
 end
