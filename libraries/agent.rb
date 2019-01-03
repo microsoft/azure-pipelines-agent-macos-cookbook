@@ -105,12 +105,14 @@ module VstsAgentMacOS
       end
 
       def launchd_service
+        return nil unless launchd_list_output.any? { |label| label.include? agent_name }
         line = launchd_list_output.select { |label| label.include? agent_name }[0]
         entry = line.strip.split(/\t/)
         { 'pid' => entry[0], 'exit_status' => entry[1], 'name' => entry[2] }
       end
 
       def pid
+        return nil if launchd_service.nil?
         return nil unless launchd_service['pid'].integer?
         launchd_service['pid']
       end
