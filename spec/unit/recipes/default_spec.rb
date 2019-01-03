@@ -8,12 +8,51 @@ RSpec.configure do |config|
   config.color = true
   config.formatter = :documentation
 end
+
+shared_context 'with a running VSTS launchd process' do
+  before do
+    allow(Agent).to receive(:launchd_list_output).and_return(["PID\tStatus\tLabel\n",
+                                                              "240\t0\tcom.apple.trustd.agent\n",
+                                                              "-\t0\tcom.apple.MailServiceAgent\n",
+                                                              "-\t0\tcom.apple.mdworker.mail\n",
+                                                              "-\t0\tcom.apple.mdworker.single.02000000-0000-0000-0000-000000000000\n",
+                                                              "260\t0\tcom.apple.Finder\n",
+                                                              "-\t0\tcom.apple.PackageKit.InstallStatus\n",
+                                                              "19900\t0\tcom.microsoft.vsts-agent\n",
+                                                              "365\t0\tcom.apple.iconservices.iconservicesagent\n",
+                                                              "303\t0\tcom.apple.ContactsAgent\n",
+                                                              "-\t0\tcom.apple.ManagedClientAgent.agent\n",
+                                                              "-\t0\tcom.apple.screensharing.agent\n"])
+  end
+  shared_examples 'not affecting the VSTS agent process' do
+    it { is_expected.to_not start_service('vsts agent launch agent') }
+
+    it 'converges successfully' do
+      expect { chef_run }.to_not raise_error
+    end
+  end
 end
 
-shared_context 'when converging the recipe' do
-  default_attributes['homebrew']['enable-analytics'] = false
+shared_context 'with no running VSTS launchd process' do
+  before do
+    allow(Agent).to receive(:launchd_list_output).and_return(["PID\tStatus\tLabel\n",
+                                                              "-\t0\tcom.google.Chrome.22128\n",
+                                                              "772\t0\tcom.google.Chrome.18908\n",
+                                                              "-\t0\tcom.apple.SafariHistoryServiceAgent\n",
+                                                              "502\t0\tcom.apple.Finder\n",
+                                                              "554\t0\tcom.apple.homed\n",
+                                                              "651\t0\tcom.apple.SafeEjectGPUAgent\n",
+                                                              "-\t0\tcom.apple.quicklook\n",
+                                                              "-\t0\tcom.apple.parentalcontrols.check\n",
+                                                              "-\t0\tcom.apple.PackageKit.InstallStatus\n",
+                                                              "555\t0\tcom.apple.mediaremoteagent\n",
+                                                              "-\t0\tcom.apple.FontWorker\n",
+                                                              "521\t0\tcom.apple.bird\n"])
+  end
 
-  shared_examples 'convergence without error' do
+  shared_examples 'starting and enabling the VSTS agent process' do
+    it { is_expected.to start_service('Adios world') }
+
     it 'converges successfully' do
       expect { chef_run }.to_not raise_error
     end
@@ -24,18 +63,18 @@ describe 'vsts_agent_macos::bootstrap' do
   platform 'mac_os_x', '10.14'
   default_attributes['homebrew']['enable-analytics'] = false
   default_attributes['vsts_agent']['agent_name'] = 'com.microsoft.vsts-agent'
-  end
 
   before do
     allow(Chef::DataBagItem).to receive(:load).with('vsts', 'build_agent').and_return(personal_access_token: 'p9817234jhbasdfo87q234bnsadfasdf234')
   end
 
-  let(:node_attributes) do
-    { platform: 'mac_os_x', version: '10.13' }
+  describe 'with a running VSTS launchd process' do
+    include_context 'with a running VSTS launchd process'
+    it_behaves_like 'not affecting the VSTS agent process'
   end
 
-  describe 'bootstrapping the vsts agent' do
-    include_context 'when converging the recipe'
-    it_behaves_like 'convergence without error'
+  describe 'with no running VSTS launchd process' do
+    include_context 'with no running VSTS launchd process'
+    it_behaves_like 'starting and enabling the VSTS agent process'
   end
 end
