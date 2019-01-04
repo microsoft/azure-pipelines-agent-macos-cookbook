@@ -53,7 +53,7 @@ template 'create environment file' do
   group Agent.user_group
   mode 0o644
   cookbook 'vsts_agent_macos'
-  notifies :restart, 'macosx_service[vsts agent launch agent]'
+  notifies :restart, 'macosx_service[start vsts agent launch agent]'
 end
 
 execute 'bootstrap the agent' do
@@ -109,14 +109,14 @@ launchd 'create launchd service plist' do
   action :create
 end
 
-macosx_service 'vsts agent launch agent' do
+macosx_service 'enable vsts agent launch agent' do
   service_name Agent.service_name
   plist Agent.launchd_plist
   action :enable
   only_if { Agent.launchd_service.nil? }
 end
 
-macosx_service 'vsts agent launch agent' do
+macosx_service 'start vsts agent launch agent' do
   service_name Agent.service_name
   plist Agent.launchd_plist
   action :start
