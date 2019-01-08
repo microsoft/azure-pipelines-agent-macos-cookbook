@@ -106,9 +106,10 @@ module VstsAgentMacOS
 
       def worker_running?
         require 'sys/proctable'
-
-        Sys::ProcTable.ps.any? { |p| p.cmdline.match? /Agent\.Worker/ }
-      end
+        Sys::ProcTable.ps.any? do |p|
+          next if p.cmdline.nil?
+          p.cmdline.match? /Agent\.Worker/
+        end
       end
     end
   end
