@@ -111,11 +111,5 @@ module VstsAgentMacOS
   end
 end
 
-class String
-  def integer?
-    to_i.to_s == self
-  end
-end
-
 Chef::Resource.include(VstsAgentMacOS)
 Chef::Recipe.include(VstsAgentMacOS)
