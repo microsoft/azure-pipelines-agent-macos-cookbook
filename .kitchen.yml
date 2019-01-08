@@ -1,7 +1,7 @@
 ---
 provisioner:
   product_name: chef
-  install_strategy: always
+  install_strategy: once
   multiple_converge: 2
   enforce_idempotency: true
 
