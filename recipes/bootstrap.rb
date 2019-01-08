@@ -88,6 +88,8 @@ execute 'configure replacement agent' do
   environment lazy { Agent.vsts_environment }
   live_stream true
   action :nothing
+  notifies :restart, 'macosx_service[start vsts agent launch agent]'
+  not_if { Agent.worker_running? }
 end
 
 file 'create agent service file' do
