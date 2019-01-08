@@ -104,9 +104,15 @@ module VstsAgentMacOS
         shell_out('launchctl list').stdout.lines
       end
 
+      def worker_running?
+        require 'sys/proctable'
+
+        Sys::ProcTable.ps.any? { |p| p.cmdline.match? /Agent\.Worker/ }
+      end
+
       def launchd_service
-        return nil unless launchd_list_output.any? { |label| label.include? agent_name }
-        line = launchd_list_output.select { |label| label.include? agent_name }[0]
+        return nil unless launchd_list_output.any? { |label| label.include? service_name }
+        line = launchd_list_output.select { |label| label.include? service_name }[0]
         entry = line.strip.split(/\t/)
         { 'pid' => entry[0], 'exit_status' => entry[1], 'name' => entry[2] }
       end

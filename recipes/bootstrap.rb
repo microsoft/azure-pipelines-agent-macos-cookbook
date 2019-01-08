@@ -1,6 +1,10 @@
 package 'git'
 package 'openssl'
 
+chef_gem 'sys-proctable' do
+  compile_time true
+end
+
 directory '/usr/local/lib/' do
   recursive true
   owner Agent.admin_user
@@ -107,18 +111,19 @@ launchd 'create launchd service plist' do
   environment_variables VSTS_AGENT_SVC: '1'
   session_type 'user'
   action :create
+  # not_if { Agent.worker_running? }
 end
 
 macosx_service 'enable vsts agent launch agent' do
   service_name Agent.service_name
   plist Agent.launchd_plist
   action :enable
-  only_if { Agent.launchd_service.nil? }
+  # only_if { Agent.launchd_service.nil? }
 end
 
 macosx_service 'start vsts agent launch agent' do
   service_name Agent.service_name
   plist Agent.launchd_plist
   action :start
-  only_if { Agent.pid.nil? }
+  # only_if { Agent.pid.nil? }
 end

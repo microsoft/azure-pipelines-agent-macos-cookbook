@@ -34,6 +34,17 @@ shared_context 'with the VSTS launchd process listed and running' do
   end
 end
 
+shared_context 'with the VSTS Agent.Worker process running' do
+  before do
+    allow(Agent).to receive(:worker_running?).and_return(true)
+  end
+  shared_examples 'not affecting the VSTS Agent.Worker process or the launch agent' do
+    it { is_expected.to_not create_launchd('create launchd service plist') }
+    it { is_expected.to_not start_macosx_service('vsts agent launch agent') }
+    it { is_expected.to_not enable_macosx_service('vsts agent launch agent') }
+  end
+end
+
 shared_context 'with the VSTS launchd process listed but not running' do
   before do
     allow(Agent).to receive(:launchd_list_output).and_return(["PID\tStatus\tLabel\n",
@@ -100,13 +111,18 @@ describe 'vsts_agent_macos::bootstrap' do
     it_behaves_like 'not affecting the VSTS agent process'
   end
 
-  describe 'VSTS launchd process listed but not currently running' do
-    include_context 'with the VSTS launchd process listed but not running'
-    it_behaves_like 'starting but not enabling the VSTS agent process'
+  describe 'VSTS Agent.Worker process running' do
+    include_context 'with the VSTS Agent.Worker process running'
+    it_behaves_like 'not affecting the VSTS Agent.Worker process or the launch agent'
   end
 
-  describe 'VSTS launchd process not listed and presumed not running' do
-    include_context 'with the VSTS launchd process not listed and not running'
-    it_behaves_like 'starting and enabling the VSTS agent process'
-  end
+  # describe 'VSTS launchd process listed but not currently running' do
+  #   include_context 'with the VSTS launchd process listed but not running'
+  #   it_behaves_like 'starting but not enabling the VSTS agent process'
+  # end
+
+  # describe 'VSTS launchd process not listed and presumed not running' do
+  #   include_context 'with the VSTS launchd process not listed and not running'
+  #   it_behaves_like 'starting and enabling the VSTS agent process'
+  # end
 end
