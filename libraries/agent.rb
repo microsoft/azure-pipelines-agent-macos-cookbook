@@ -100,10 +100,6 @@ module VstsAgentMacOS
         Chef.node['vsts_agent']['admin_user']
       end
 
-      def launchd_list_output
-        shell_out('launchctl list').stdout.lines
-      end
-
       def worker_running?
         require 'sys/proctable'
         Sys::ProcTable.ps.any? do |p|
