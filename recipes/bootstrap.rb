@@ -58,6 +58,7 @@ template 'create environment file' do
   mode 0o644
   cookbook 'vsts_agent_macos'
   notifies :restart, 'macosx_service[start vsts agent launch agent]'
+  not_if { Agent.worker_running? }
 end
 
 execute 'bootstrap the agent' do
@@ -111,7 +112,7 @@ launchd 'create launchd service plist' do
   environment_variables VSTS_AGENT_SVC: '1'
   session_type 'user'
   action :create
-  # not_if { Agent.worker_running? }
+  not_if { Agent.worker_running? }
 end
 
 macosx_service 'enable vsts agent launch agent' do
