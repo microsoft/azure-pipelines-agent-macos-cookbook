@@ -99,6 +99,14 @@ module VstsAgentMacOS
       def admin_user
         Chef.node['vsts_agent']['admin_user']
       end
+
+      def worker_running?
+        require 'sys/proctable'
+        Sys::ProcTable.ps.any? do |p|
+          next if p.cmdline.nil?
+          p.cmdline.match? /Agent\.Worker/
+        end
+      end
     end
   end
 end

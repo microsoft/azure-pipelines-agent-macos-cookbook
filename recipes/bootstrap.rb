@@ -1,6 +1,10 @@
 package 'git'
 package 'openssl'
 
+chef_gem 'sys-proctable' do
+  compile_time true
+end
+
 directory '/usr/local/lib/' do
   recursive true
   owner Agent.admin_user
@@ -53,7 +57,8 @@ template 'create environment file' do
   group Agent.user_group
   mode 0o644
   cookbook 'vsts_agent_macos'
-  notifies :restart, 'macosx_service[vsts agent launch agent]'
+  notifies :restart, 'macosx_service[start vsts agent launch agent]'
+  not_if { Agent.worker_running? }
 end
 
 execute 'bootstrap the agent' do
@@ -83,7 +88,8 @@ execute 'configure replacement agent' do
   environment lazy { Agent.vsts_environment }
   live_stream true
   action :nothing
-  notifies :restart, 'macosx_service[vsts agent launch agent]'
+  notifies :restart, 'macosx_service[start vsts agent launch agent]'
+  not_if { Agent.worker_running? }
 end
 
 file 'create agent service file' do
@@ -107,11 +113,18 @@ launchd 'create launchd service plist' do
   standard_error_path ::File.join Agent.service_log_path, 'stderr.log'
   environment_variables VSTS_AGENT_SVC: '1'
   session_type 'user'
-  action [:create, :enable]
+  action :create
+  not_if { Agent.worker_running? }
 end
 
-macosx_service 'vsts agent launch agent' do
+macosx_service 'enable vsts agent launch agent' do
   service_name Agent.service_name
   plist Agent.launchd_plist
-  action [:enable, :start]
+  action :enable
+end
+
+macosx_service 'start vsts agent launch agent' do
+  service_name Agent.service_name
+  plist Agent.launchd_plist
+  action :start
 end

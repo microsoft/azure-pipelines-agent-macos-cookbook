@@ -4,40 +4,33 @@ require_relative '../../../libraries/agent'
 
 include VstsAgentMacOS
 
-at_exit { ChefSpec::Coverage.report! }
-
 RSpec.configure do |config|
   config.color = true
   config.formatter = :documentation
-  config.log_level = :trace
 end
 
-shared_context 'when converging the recipe' do
-  default_attributes['homebrew']['enable-analytics'] = false
-
-  shared_examples 'convergence without error' do
-    it 'converges successfully' do
-      expect { chef_run }.to_not raise_error
-    end
+shared_context 'with the VSTS Agent.Worker process running' do
+  before do
+    allow(Agent).to receive(:worker_running?).and_return(true)
+  end
+  shared_examples 'not affecting the VSTS Agent.Worker process or the launch agent' do
+    it { is_expected.to_not create_launchd('create launchd service plist') }
+    it { is_expected.to_not start_macosx_service('vsts agent launch agent') }
+    it { is_expected.to_not enable_macosx_service('vsts agent launch agent') }
   end
 end
 
 describe 'vsts_agent_macos::bootstrap' do
-  let(:chef_run) do
-    runner = ChefSpec::SoloRunner.new(node_attributes)
-    runner.converge(described_recipe)
-  end
+  platform 'mac_os_x', '10.14'
+  default_attributes['homebrew']['enable-analytics'] = false
+  default_attributes['vsts_agent']['agent_name'] = 'com.microsoft.vsts-agent'
 
   before do
     allow(Chef::DataBagItem).to receive(:load).with('vsts', 'build_agent').and_return(personal_access_token: 'p9817234jhbasdfo87q234bnsadfasdf234')
   end
 
-  let(:node_attributes) do
-    { platform: 'mac_os_x', version: '10.13' }
-  end
-
-  describe 'bootstrapping the vsts agent' do
-    include_context 'when converging the recipe'
-    it_behaves_like 'convergence without error'
+  describe 'VSTS Agent.Worker process running' do
+    include_context 'with the VSTS Agent.Worker process running'
+    it_behaves_like 'not affecting the VSTS Agent.Worker process or the launch agent'
   end
 end
