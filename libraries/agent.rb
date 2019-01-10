@@ -7,7 +7,7 @@ module VstsAgentMacOS
     class << self
       def release_download_url(version = nil)
         version ||= Chef.node['vsts_agent']['version']
-        ::URI.encode("https://vstsagentpackage.azureedge.net/agent/#{version}/vsts-agent-osx-x64-#{version}.tar.gz")
+        ::URI.encode "https://vstsagentpackage.azureedge.net/agent/#{version}/vsts-agent-osx-x64-#{version}.tar.gz"
       end
 
       def agent_home
@@ -31,7 +31,7 @@ module VstsAgentMacOS
       end
 
       def vsts_environment
-        default_environment.merge(additional_environment)
+        default_environment.merge additional_environment
       end
 
       def additional_environment
@@ -40,8 +40,6 @@ module VstsAgentMacOS
 
       def default_environment
         { VSTS_AGENT_INPUT_URL: account_url,
-          VSTS_AGENT_INPUT_AUTH: 'PAT',
-          VSTS_AGENT_INPUT_TOKEN: agent_data[:personal_access_token],
           VSTS_AGENT_INPUT_POOL: Chef.node['vsts_agent']['agent_pool'],
           VSTS_AGENT_INPUT_AGENT: Chef.node['vsts_agent']['agent_name'],
           VSTS_AGENT_INPUT_DEPLOYMENTGROUPNAME: Chef.node['vsts_agent']['deployment_group'],
@@ -51,19 +49,14 @@ module VstsAgentMacOS
           HOME: admin_home }
       end
 
-      def agent_data
-        vsts_data = Chef.node['vsts_agent']
-        Chef::DataBagItem.load(vsts_data['data_bag'], vsts_data['data_bag_item'])
-      end
-
       def launchd_plist
-        ::File.join('/', 'Library', 'LaunchAgents', "#{service_name}.plist")
+        ::File.join '/', 'Library', 'LaunchAgents', "#{service_name}.plist"
       end
 
       def needs_update?
         config_script = ::File.join agent_home, 'config.sh'
         if ::File.exist? config_script
-          version_command = shell_out(config_script, '--version', user: admin_user, env: vsts_environment)
+          version_command = shell_out config_script, '--version', user: admin_user, env: vsts_environment
           current_version = version_command.stdout.chomp
           requested_version = Chef.node['vsts_agent']['version']
           ::Gem::Version.new(requested_version) > ::Gem::Version.new(current_version)

@@ -1,6 +1,10 @@
 package 'git'
 package 'openssl'
 
+auth_data = data_bag_item node['vsts_agent']['data_bag'], node['vsts_agent']['data_bag_item']
+pat_token = auth_data[:personal_access_token]
+auth_params = ['--auth', 'pat', '--token', pat_token]
+
 chef_gem 'sys-proctable' do
   compile_time true
 end
@@ -64,7 +68,7 @@ end
 execute 'bootstrap the agent' do
   cwd Agent.agent_home
   user Agent.admin_user
-  command ['./bin/Agent.Listener', 'configure', Agent.configuration_type, '--unattended', '--acceptTeeEula']
+  command ['./bin/Agent.Listener', 'configure', Agent.configuration_type, '--unattended', '--acceptTeeEula', *auth_params]
   environment lazy { Agent.vsts_environment }
   not_if { Agent.credentials? }
   live_stream true
@@ -84,7 +88,7 @@ end
 execute 'configure replacement agent' do
   cwd Agent.agent_home
   user Agent.admin_user
-  command ['./bin/Agent.Listener', 'configure', Agent.configuration_type, '--replace', '--unattended', '--acceptTeeEula']
+  command ['./bin/Agent.Listener', 'configure', Agent.configuration_type, '--replace', '--unattended', '--acceptTeeEula', *auth_params]
   environment lazy { Agent.vsts_environment }
   live_stream true
   action :nothing
