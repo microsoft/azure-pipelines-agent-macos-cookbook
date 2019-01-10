@@ -1,7 +1,7 @@
 package 'git'
 package 'openssl'
 
-auth_data = data_bag_item node['vsts_agent']['data_bag'], node['vsts_agent']['data_bag_item']
+auth_data = node['vsts_agent']['pat'] ? node['vsts_agent']['pat'] : chef_vault_item node['vsts_agent']['data_bag'], node['vsts_agent']['data_bag_item']
 pat_token = auth_data[:personal_access_token]
 auth_params = ['--auth', 'pat', '--token', pat_token]
 
