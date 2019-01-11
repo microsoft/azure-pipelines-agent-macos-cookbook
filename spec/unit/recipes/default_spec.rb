@@ -1,5 +1,7 @@
 require 'chefspec'
 require 'chefspec/berkshelf'
+require 'chef-vault/test_fixtures'
+
 require_relative '../../../libraries/agent'
 
 include VstsAgentMacOS
@@ -7,27 +9,46 @@ include VstsAgentMacOS
 RSpec.configure do |config|
   config.color = true
   config.formatter = :documentation
+  config.log_level = :error
 end
 
-shared_context 'with the VSTS Agent.Worker process running' do
+shared_context 'agent is running a job' do
+  include ChefVault::TestFixtures.rspec_shared_context
+
   before do
+    stub_data_bag_item('vsts', 'build_agent').and_return('personal_access_token' => 'p9817234jhbasdfo87q234bnsadfasdf234')
     allow(Agent).to receive(:worker_running?).and_return true
-    stub_data_bag_item('vsts', 'build_agent').and_return personal_access_token: 'p9817234jhbasdfo87q234bnsadfasdf234'
   end
-  shared_examples 'not affecting the VSTS Agent.Worker process or the launch agent' do
+
+  shared_examples 'not affecting the listener or worker processes' do
     it { is_expected.to_not create_launchd('create launchd service plist') }
-    it { is_expected.to_not start_macosx_service('vsts agent launch agent') }
-    it { is_expected.to_not enable_macosx_service('vsts agent launch agent') }
+  end
+end
+
+shared_context 'agent is idle' do
+  include ChefVault::TestFixtures.rspec_shared_context
+
+  before do
+    stub_data_bag_item('vsts', 'build_agent').and_return('personal_access_token' => 'p9817234jhbasdfo87q234bnsadfasdf234')
+    allow(Agent).to receive(:worker_running?).and_return false
+  end
+
+  shared_examples 'creating the launch daemon, enabling, and starting the service' do
+    it { is_expected.to create_launchd('create launchd service plist') }
+    it { expect(chef_run.template('create environment file')).to notify('macosx_service[vsts-agent]').to(:restart) }
   end
 end
 
 describe 'vsts_agent_macos::bootstrap' do
   platform 'mac_os_x', '10.14'
-  default_attributes['homebrew']['enable-analytics'] = false
-  default_attributes['vsts_agent']['agent_name'] = 'com.microsoft.vsts-agent'
 
-  describe 'VSTS Agent.Worker process running' do
-    include_context 'with the VSTS Agent.Worker process running'
-    it_behaves_like 'not affecting the VSTS Agent.Worker process or the launch agent'
+  describe 'bootstrap when running a job' do
+    include_context 'agent is running a job'
+    it_behaves_like 'not affecting the listener or worker processes'
+  end
+
+  describe 'bootstrap when idle' do
+    include_context 'agent is idle'
+    it_behaves_like 'creating the launch daemon, enabling, and starting the service'
   end
 end

@@ -1,13 +1,20 @@
-package 'git'
-package 'openssl'
-
-auth_data = node['vsts_agent']['pat'] ? node['vsts_agent']['pat'] : chef_vault_item node['vsts_agent']['data_bag'], node['vsts_agent']['data_bag_item']
-pat_token = auth_data[:personal_access_token]
-auth_params = ['--auth', 'pat', '--token', pat_token]
-
 chef_gem 'sys-proctable' do
   compile_time true
 end
+
+package 'git'
+package 'openssl'
+
+vsts_attrs = node['vsts_agent']
+
+if vsts_attrs['pat']
+  pat = vsts_attrs['pat']
+else
+  auth_data = chef_vault_item vsts_attrs['data_bag'], vsts_attrs['data_bag_item']
+  pat = auth_data['personal_access_token']
+end
+
+auth_params = ['--auth', 'pat', '--token', pat]
 
 directory '/usr/local/lib/' do
   recursive true
@@ -61,7 +68,7 @@ template 'create environment file' do
   group Agent.user_group
   mode 0o644
   cookbook 'vsts_agent_macos'
-  notifies :restart, 'macosx_service[start vsts agent launch agent]'
+  notifies :restart, 'macosx_service[vsts-agent]'
   not_if { Agent.worker_running? }
 end
 
@@ -92,8 +99,7 @@ execute 'configure replacement agent' do
   environment lazy { Agent.vsts_environment }
   live_stream true
   action :nothing
-  notifies :restart, 'macosx_service[start vsts agent launch agent]'
-  not_if { Agent.worker_running? }
+  notifies :restart, 'macosx_service[vsts-agent]'
 end
 
 file 'create agent service file' do
@@ -117,18 +123,12 @@ launchd 'create launchd service plist' do
   standard_error_path ::File.join Agent.service_log_path, 'stderr.log'
   environment_variables VSTS_AGENT_SVC: '1'
   session_type 'user'
-  action :create
+  action [:create, :enable]
   not_if { Agent.worker_running? }
 end
 
-macosx_service 'enable vsts agent launch agent' do
+macosx_service 'vsts-agent' do
   service_name Agent.service_name
   plist Agent.launchd_plist
-  action :enable
-end
-
-macosx_service 'start vsts agent launch agent' do
-  service_name Agent.service_name
-  plist Agent.launchd_plist
-  action :start
+  action :nothing
 end
