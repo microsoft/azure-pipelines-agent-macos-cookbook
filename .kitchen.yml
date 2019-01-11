@@ -1,6 +1,6 @@
 ---
 provisioner:
-  # data_bags_path: data_bags
+  data_bags_path: data_bags
   enforce_idempotency: true
   install_strategy: once
   multiple_converge: 2
