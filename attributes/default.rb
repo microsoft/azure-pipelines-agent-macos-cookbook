@@ -1,5 +1,7 @@
 default['vsts_agent']['admin_user'] = 'vagrant'
 default['vsts_agent']['user_group'] = 'staff'
+
+default['vsts_agent']['pat'] = nil
 default['vsts_agent']['data_bag'] = 'vsts'
 default['vsts_agent']['data_bag_item'] = 'build_agent'
 

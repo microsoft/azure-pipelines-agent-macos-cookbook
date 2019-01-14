@@ -1,28 +1,29 @@
 ---
 provisioner:
-  product_name: chef
+  data_bags_path: data_bags
+  enforce_idempotency: true
   install_strategy: once
   multiple_converge: 2
-  enforce_idempotency: true
+  product_name: chef
 
 platforms:
 - name: high-sierra
   driver:
-    name: vagrant
     box: microsoft/macos-high-sierra
-    box_url: http://office-infra-boxes.corp.microsoft.com:8099/microsoft/macos-high-sierra
-    provider: parallels
     box_check_update: true
-    box_version: 10.13.6.pre.v2
+    box_url: http://office-infra-boxes.corp.microsoft.com:8099/microsoft/macos-high-sierra
+    box_version: 10.13.6.pre.v4
+    name: vagrant
+    provider: parallels
 
 - name: mojave
   driver:
-    name: vagrant
     box: microsoft/macos-mojave
-    box_url: http://office-infra-boxes.corp.microsoft.com:8099/microsoft/macos-mojave
-    provider: parallels
     box_check_update: true
-    box_version: 10.14.1
+    box_url: http://office-infra-boxes.corp.microsoft.com:8099/microsoft/macos-mojave
+    box_version: 10.14.2
+    name: vagrant
+    provider: parallels
 
 verifier:
   name: inspec
