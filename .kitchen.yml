@@ -12,7 +12,6 @@ platforms:
     box: microsoft/macos-high-sierra
     box_check_update: true
     box_url: http://office-infra-boxes.corp.microsoft.com:8099/microsoft/macos-high-sierra
-    box_version: 10.13.6.pre.v4
     name: vagrant
     provider: parallels
 
@@ -21,7 +20,6 @@ platforms:
     box: microsoft/macos-mojave
     box_check_update: true
     box_url: http://office-infra-boxes.corp.microsoft.com:8099/microsoft/macos-mojave
-    box_version: 10.14.2
     name: vagrant
     provider: parallels
 
