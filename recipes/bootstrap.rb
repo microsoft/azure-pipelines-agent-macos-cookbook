@@ -123,12 +123,12 @@ launchd 'create launchd service plist' do
   standard_error_path ::File.join Agent.service_log_path, 'stderr.log'
   environment_variables VSTS_AGENT_SVC: '1'
   session_type 'user'
-  action [:create, :enable]
-  not_if { Agent.worker_running? }
+  action :create
 end
 
 macosx_service 'vsts-agent' do
   service_name Agent.service_name
   plist Agent.launchd_plist
-  action :nothing
+  action [:enable, :start]
+  not_if { Agent.worker_running? }
 end
