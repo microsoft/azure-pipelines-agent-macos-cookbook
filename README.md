@@ -38,7 +38,7 @@ default['azure_piplines_agent']['agent_name']
 
 The version of the agent to install.
 
-**Default value:** `'2.144.0'`
+**Default value:** `'2.150.3'`
 
 ```ruby
 default['azure_piplines_agent']['version']
@@ -56,7 +56,7 @@ default['azure_piplines_agent']['agent_pool']
 
 ### Organization Name
 
-The name of your Azure DevOps organization. (i.e. 'americanhanko' in `https://dev.azure.com/americanhanko`)
+The name of your Azure DevOps organization. (e.g. 'americanhanko' in `https://dev.azure.com/americanhanko`)
 
 **Default value:** `americanhanko`
 
