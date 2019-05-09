@@ -2,16 +2,16 @@ require 'uri'
 
 include Chef::Mixin::ShellOut
 
-module VstsAgentMacOS
+module AzurePipelines
   class Agent
     class << self
       def release_download_url(version = nil)
-        version ||= Chef.node['vsts_agent']['version']
+        version ||= agent_attrs['version']
         ::URI.encode "https://vstsagentpackage.azureedge.net/agent/#{version}/vsts-agent-osx-x64-#{version}.tar.gz"
       end
 
       def agent_home
-        ::File.join admin_home, 'vsts-agent'
+        ::File.join admin_home, 'azure-pipelines-agent'
       end
 
       def admin_library
@@ -27,25 +27,25 @@ module VstsAgentMacOS
       end
 
       def account_url
-        'https://' + account_name + '.visualstudio.com'
+        ::File.join 'https://dev.azure.com', account_name
       end
 
-      def vsts_environment
+      def environment
         default_environment.merge additional_environment
       end
 
       def additional_environment
-        Chef.node['vsts_agent']['additional_environment']
+        agent_attrs['additional_environment']
       end
 
       def default_environment
         { VSTS_AGENT_INPUT_URL: account_url,
-          VSTS_AGENT_INPUT_POOL: Chef.node['vsts_agent']['agent_pool'],
-          VSTS_AGENT_INPUT_AGENT: Chef.node['vsts_agent']['agent_name'],
-          VSTS_AGENT_INPUT_DEPLOYMENTGROUPNAME: Chef.node['vsts_agent']['deployment_group'],
-          VSTS_AGENT_INPUT_DEPLOYMENTGROUPTAGS: Chef.node['vsts_agent']['deployment_group_tags'],
-          VSTS_AGENT_INPUT_PROJECTNAME: Chef.node['vsts_agent']['project'],
-          VSTS_AGENT_INPUT_WORK: Chef.node['vsts_agent']['work'],
+          VSTS_AGENT_INPUT_POOL: agent_attrs['agent_pool'],
+          VSTS_AGENT_INPUT_AGENT: agent_attrs['agent_name'],
+          VSTS_AGENT_INPUT_DEPLOYMENTGROUPNAME: agent_attrs['deployment_group'],
+          VSTS_AGENT_INPUT_DEPLOYMENTGROUPTAGS: agent_attrs['deployment_group_tags'],
+          VSTS_AGENT_INPUT_PROJECTNAME: agent_attrs['project'],
+          VSTS_AGENT_INPUT_WORK: agent_attrs['work'],
           HOME: admin_home }
       end
 
@@ -56,9 +56,9 @@ module VstsAgentMacOS
       def needs_update?
         config_script = ::File.join agent_home, 'config.sh'
         if ::File.exist? config_script
-          version_command = shell_out config_script, '--version', user: admin_user, env: vsts_environment
+          version_command = shell_out config_script, '--version', user: admin_user, env: environment
           current_version = version_command.stdout.chomp
-          requested_version = Chef.node['vsts_agent']['version']
+          requested_version = agent_attrs['version']
           ::Gem::Version.new(requested_version) > ::Gem::Version.new(current_version)
         else
           true
@@ -66,31 +66,36 @@ module VstsAgentMacOS
       end
 
       def configuration_type
-        Chef.node['vsts_agent']['deployment_group'].nil? ? '' : '--deploymentgroup'
+        agent_attrs['deployment_group'].nil? ? '' : '--deploymentgroup'
       end
 
       def user_group
-        Chef.node['vsts_agent']['user_group']
+        agent_attrs['user_group']
       end
 
       def credentials?
-        ::File.exist? "#{agent_home}/.credentials"
+        credentials = ::File.join agent_home, '.credentials'
+        ::File.exist? credentials
       end
 
       def service_name
-        Chef.node['vsts_agent']['service_name']
+        agent_attrs['service_name']
       end
 
       def agent_name
-        Chef.node['vsts_agent']['agent_name']
+        agent_attrs['agent_name']
       end
 
       def account_name
-        Chef.node['vsts_agent']['account']
+        agent_attrs['account']
       end
 
       def admin_user
-        Chef.node['vsts_agent']['admin_user']
+        agent_attrs['admin_user']
+      end
+
+      def agent_attrs
+        Chef.node['azure_pipelines_agent']
       end
 
       def worker_running?
@@ -104,5 +109,5 @@ module VstsAgentMacOS
   end
 end
 
-Chef::Resource.include(VstsAgentMacOS)
-Chef::Recipe.include(VstsAgentMacOS)
+Chef::Resource.include AzurePipelines
+Chef::Recipe.include AzurePipelines

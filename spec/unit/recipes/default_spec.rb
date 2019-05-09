@@ -4,7 +4,7 @@ require 'chef-vault/test_fixtures'
 
 require_relative '../../../libraries/agent'
 
-include VstsAgentMacOS
+include AzurePipelines
 
 RSpec.configure do |config|
   config.color = true
@@ -16,7 +16,7 @@ shared_context 'agent is running a job' do
   include ChefVault::TestFixtures.rspec_shared_context
 
   before do
-    stub_data_bag_item('vsts', 'build_agent').and_return('personal_access_token' => 'p9817234jhbasdfo87q234bnsadfasdf234')
+    stub_data_bag_item('azure_pipelines', 'build_agent').and_return('personal_access_token' => 'p9817234jhbasdfo87q234bnsadfasdf234')
     allow(Agent).to receive(:worker_running?).and_return true
   end
 
@@ -29,17 +29,17 @@ shared_context 'agent is idle' do
   include ChefVault::TestFixtures.rspec_shared_context
 
   before do
-    stub_data_bag_item('vsts', 'build_agent').and_return('personal_access_token' => 'p9817234jhbasdfo87q234bnsadfasdf234')
+    stub_data_bag_item('azure_pipelines', 'build_agent').and_return('personal_access_token' => 'p9817234jhbasdfo87q234bnsadfasdf234')
     allow(Agent).to receive(:worker_running?).and_return false
   end
 
   shared_examples 'creating the launch daemon, enabling, and starting the service' do
     it { is_expected.to create_launchd('create launchd service plist') }
-    it { expect(chef_run.template('create environment file')).to notify('macosx_service[vsts-agent]').to(:restart) }
+    it { expect(chef_run.template('create environment file')).to notify('macosx_service[azure-pipelines-agent]').to(:restart) }
   end
 end
 
-describe 'vsts_agent_macos::bootstrap' do
+describe 'azure_pipelines_agent_macos::bootstrap' do
   platform 'mac_os_x', '10.14'
 
   describe 'bootstrap when running a job' do

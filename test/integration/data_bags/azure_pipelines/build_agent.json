@@ -1,4 +1,4 @@
 {
-  "id": "vsts_build_agent",
+  "id": "azure_pipelines_agent",
   "personal_access_token": "iu8tfaxxrhce7yeu434yo9zfjtxif3jygzk24wegi855er2moobs"
 }
