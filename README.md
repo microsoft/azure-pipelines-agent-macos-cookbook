@@ -1,7 +1,7 @@
 Azure DevOps Build and Release Agent Cookbook for macOS
 =======================================================
 
-![](https://office.visualstudio.com/_apis/public/build/definitions/59d72877-1cea-4eb6-9d06-66716573631a/2373/badge)
+[![Build status](https://dev.azure.com/office/APEX/_apis/build/status/Apple%20Lab/cookbooks/azure_pipelines_agent_macos)](https://dev.azure.com/office/APEX/_build/latest?definitionId=2373)
 
 [Visual Studio Team Services is now Azure DevOps Services](https://docs.microsoft.com/en-us/azure/devops/user-guide/what-happened-vsts)
 We're working on the best way to rename the cookbook and recipes while maintaining backwards compatibility.
