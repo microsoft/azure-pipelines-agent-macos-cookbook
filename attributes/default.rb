@@ -14,7 +14,6 @@ default['azure_pipelines_agent']['additional_environment'] = {}
 default['azure_pipelines_agent']['service_name'] = 'com.microsoft.azure-pipelines-agent'
 
 default['azure_pipelines_agent']['deployment_group'] = nil
-
 default['azure_pipelines_agent']['deployment_group_tags'] = nil
 default['azure_pipelines_agent']['project'] = nil
 default['azure_pipelines_agent']['work'] = nil

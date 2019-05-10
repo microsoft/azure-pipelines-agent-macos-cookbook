@@ -1,10 +1,23 @@
 ---
 provisioner:
+  channel: stable
   data_bags_path: data_bags
   enforce_idempotency: true
   install_strategy: once
+  max_retries: 3
   multiple_converge: 2
   product_name: chef
+  product_version: latest
+  attributes:
+    azure_pipelines_agent:
+      account: office
+      data_bag: azure_pipelines
+      data_bag_item: office_build_agent
+      additional_environment:
+        VAGRANT_SERVER_URL: http://office-infra-boxes.corp.microsoft.com
+    homebrew:
+      auto-update: false
+      owner: vagrant
 
 platforms:
 - name: high-sierra
@@ -39,14 +52,6 @@ suites:
   attributes:
     azure_pipelines_agent:
       agent_pool: SEAL Mac Staging
-      account: office
-      data_bag: azure_pipelines
-      data_bag_item: office_build_agent
-      additional_environment:
-        VAGRANT_SERVER_URL: http://office-infra-boxes.corp.microsoft.com
-    homebrew:
-      auto-update: false
-      owner: vagrant
 
 - name: deployment_group
   run_list:
@@ -55,13 +60,5 @@ suites:
     azure_pipelines_agent:
       deployment_group: Cookbook Group
       deployment_group_tags: test,kitchen,vagrant,chef
-      account: office
-      data_bag: azure_pipelines
-      data_bag_item: office_build_agent
       project: APEX
       work: _work
-      additional_environment:
-        VAGRANT_SERVER_URL: http://office-infra-boxes.corp.microsoft.com
-    homebrew:
-      auto-update: false
-      owner: vagrant

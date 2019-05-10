@@ -26,10 +26,6 @@ module AzurePipelines
         ::File.join '/', 'Users', admin_user
       end
 
-      def account_url
-        ::File.join 'https://dev.azure.com', account_name
-      end
-
       def environment
         default_environment.merge additional_environment
       end
@@ -39,14 +35,17 @@ module AzurePipelines
       end
 
       def default_environment
-        { VSTS_AGENT_INPUT_URL: account_url,
-          VSTS_AGENT_INPUT_POOL: agent_attrs['agent_pool'],
+        account_url = ::File.join 'https://dev.azure.com', agent_attrs['account']
+        {
+          HOME: admin_home,
           VSTS_AGENT_INPUT_AGENT: agent_attrs['agent_name'],
           VSTS_AGENT_INPUT_DEPLOYMENTGROUPNAME: agent_attrs['deployment_group'],
           VSTS_AGENT_INPUT_DEPLOYMENTGROUPTAGS: agent_attrs['deployment_group_tags'],
+          VSTS_AGENT_INPUT_POOL: agent_attrs['agent_pool'],
           VSTS_AGENT_INPUT_PROJECTNAME: agent_attrs['project'],
+          VSTS_AGENT_INPUT_URL: account_url,
           VSTS_AGENT_INPUT_WORK: agent_attrs['work'],
-          HOME: admin_home }
+        }
       end
 
       def launchd_plist
@@ -84,10 +83,6 @@ module AzurePipelines
 
       def agent_name
         agent_attrs['agent_name']
-      end
-
-      def account_name
-        agent_attrs['account']
       end
 
       def admin_user
