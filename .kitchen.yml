@@ -1,11 +1,8 @@
 ---
 provisioner:
-<<<<<<< Updated upstream
-=======
   client_rb:
     chef_license: accept
   channel: stable
->>>>>>> Stashed changes
   data_bags_path: data_bags
   enforce_idempotency: true
   install_strategy: once
