@@ -30,6 +30,7 @@ platforms:
     provider: parallels
 
 verifier:
+  chef_license: accept
   name: inspec
   format:
   - cli
