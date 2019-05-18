@@ -1,11 +1,14 @@
 ---
 provisioner:
+  client_rb:
+    chef_license: accept
   channel: stable
   data_bags_path: data_bags
   enforce_idempotency: true
   install_strategy: once
   max_retries: 3
   multiple_converge: 2
+  name: chef_zero
   product_name: chef
   product_version: latest
   attributes:
@@ -37,6 +40,7 @@ platforms:
     provider: parallels
 
 verifier:
+  chef_license: accept
   name: inspec
   format:
   - cli
