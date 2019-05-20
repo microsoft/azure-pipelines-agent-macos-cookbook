@@ -1,4 +1,9 @@
 ---
+driver:
+  name: vagrant
+  provider: parallels
+  box_check_update: true
+
 provisioner:
   client_rb:
     chef_license: accept
@@ -16,53 +21,43 @@ provisioner:
       account: office
       data_bag: azure_pipelines
       data_bag_item: office_build_agent
-      additional_environment:
-        VAGRANT_SERVER_URL: http://office-infra-boxes.corp.microsoft.com
     homebrew:
       auto-update: false
       owner: vagrant
-
-platforms:
-- name: high-sierra
-  driver:
-    box: microsoft/macos-high-sierra
-    box_check_update: true
-    box_url: http://office-infra-boxes.corp.microsoft.com:8099/microsoft/macos-high-sierra
-    name: vagrant
-    provider: parallels
-
-- name: mojave
-  driver:
-    box: microsoft/macos-mojave
-    box_check_update: true
-    box_url: http://office-infra-boxes.corp.microsoft.com:8099/microsoft/macos-mojave
-    name: vagrant
-    provider: parallels
 
 verifier:
   chef_license: accept
   name: inspec
   format:
-  - cli
-  - junit:/tmp/inspec.xml
+    - cli
+    - junit:/tmp/inspec.xml
   sudo: false
   inspec_tests:
-  - test/integration/default
+    - test/integration/default
+
+platforms:
+  - name: high-sierra
+    driver:
+      box: microsoft/macos-high-sierra
+
+  - name: mojave
+    driver:
+      box: microsoft/macos-mojave
 
 suites:
-- name: build_agent
-  run_list:
-  - recipe[azure_pipelines_agent_macos::default]
-  attributes:
-    azure_pipelines_agent:
-      agent_pool: SEAL Mac Staging
+  - name: build_agent
+    run_list:
+      - recipe[azure_pipelines_agent_macos::default]
+    attributes:
+      azure_pipelines_agent:
+        agent_pool: SEAL Mac Staging
 
-- name: deployment_group
-  run_list:
-  - recipe[azure_pipelines_agent_macos::default]
-  attributes:
-    azure_pipelines_agent:
-      deployment_group: Cookbook Group
-      deployment_group_tags: test,kitchen,vagrant,chef
-      project: APEX
-      work: _work
+  - name: deployment_group
+    run_list:
+      - recipe[azure_pipelines_agent_macos::default]
+    attributes:
+      azure_pipelines_agent:
+        deployment_group: Cookbook Group
+        deployment_group_tags: test,kitchen,vagrant,chef
+        project: APEX
+        work: _work
