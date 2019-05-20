@@ -5,12 +5,12 @@ end
 package 'git'
 package 'openssl'
 
-vsts_attrs = node['vsts_agent']
+agent_attrs = node['azure_pipelines_agent']
 
-if vsts_attrs['pat']
-  pat = vsts_attrs['pat']
+if agent_attrs['pat']
+  pat = agent_attrs['pat']
 else
-  auth_data = chef_vault_item vsts_attrs['data_bag'], vsts_attrs['data_bag_item']
+  auth_data = chef_vault_item agent_attrs['data_bag'], agent_attrs['data_bag_item']
   pat = auth_data['personal_access_token']
 end
 
@@ -67,8 +67,8 @@ template 'create environment file' do
   owner Agent.admin_user
   group Agent.user_group
   mode 0o644
-  cookbook 'vsts_agent_macos'
-  notifies :restart, 'macosx_service[vsts-agent]'
+  cookbook 'azure_pipelines_agent_macos'
+  notifies :restart, 'macosx_service[azure-pipelines-agent]'
   not_if { Agent.worker_running? }
 end
 
@@ -76,7 +76,7 @@ execute 'bootstrap the agent' do
   cwd Agent.agent_home
   user Agent.admin_user
   command ['./bin/Agent.Listener', 'configure', Agent.configuration_type, '--unattended', '--acceptTeeEula', *auth_params]
-  environment lazy { Agent.vsts_environment }
+  environment lazy { Agent.environment }
   not_if { Agent.credentials? }
   live_stream true
   ignore_failure true
@@ -96,10 +96,10 @@ execute 'configure replacement agent' do
   cwd Agent.agent_home
   user Agent.admin_user
   command ['./bin/Agent.Listener', 'configure', Agent.configuration_type, '--replace', '--unattended', '--acceptTeeEula', *auth_params]
-  environment lazy { Agent.vsts_environment }
+  environment lazy { Agent.environment }
   live_stream true
   action :nothing
-  notifies :restart, 'macosx_service[vsts-agent]'
+  notifies :restart, 'macosx_service[azure-pipelines-agent]'
 end
 
 file 'create agent service file' do
@@ -127,7 +127,7 @@ launchd 'create launchd service plist' do
   not_if { Agent.worker_running? }
 end
 
-macosx_service 'vsts-agent' do
+macosx_service 'azure-pipelines-agent' do
   service_name Agent.service_name
   plist Agent.launchd_plist
   action :nothing

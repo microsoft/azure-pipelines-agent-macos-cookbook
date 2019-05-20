@@ -1,4 +1,9 @@
 ---
+driver:
+  name: vagrant
+  provider: parallels
+  box_check_update: true
+
 provisioner:
   client_rb:
     chef_license: accept
@@ -6,69 +11,53 @@ provisioner:
   data_bags_path: data_bags
   enforce_idempotency: true
   install_strategy: once
+  max_retries: 3
   multiple_converge: 2
   name: chef_zero
   product_name: chef
-
-platforms:
-- name: high-sierra
-  driver:
-    box: microsoft/macos-high-sierra
-    box_check_update: true
-    box_url: http://office-infra-boxes.corp.microsoft.com:8099/microsoft/macos-high-sierra
-    box_version: 10.13.6.pre.v4
-    name: vagrant
-    provider: parallels
-
-- name: mojave
-  driver:
-    box: microsoft/macos-mojave
-    box_check_update: true
-    box_url: http://office-infra-boxes.corp.microsoft.com:8099/microsoft/macos-mojave
-    box_version: 10.14.2
-    name: vagrant
-    provider: parallels
+  product_version: latest
+  attributes:
+    azure_pipelines_agent:
+      account: office
+      data_bag: azure_pipelines
+      data_bag_item: office_build_agent
+    homebrew:
+      auto-update: false
+      owner: vagrant
 
 verifier:
   chef_license: accept
   name: inspec
   format:
-  - cli
-  - junit:/tmp/inspec.xml
+    - cli
+    - junit:/tmp/inspec.xml
   sudo: false
   inspec_tests:
-  - test/integration/default
+    - test/integration/default
+
+platforms:
+  - name: high-sierra
+    driver:
+      box: microsoft/macos-high-sierra
+
+  - name: mojave
+    driver:
+      box: microsoft/macos-mojave
 
 suites:
-- name: build_agent
-  run_list:
-  - recipe[vsts_agent_macos::default]
-  attributes:
-    vsts_agent:
-      agent_pool: SEAL Mac Staging
-      account: office
-      data_bag: vsts
-      data_bag_item: office_build_agent
-      additional_environment:
-        VAGRANT_SERVER_URL: http://office-infra-boxes.corp.microsoft.com
-    homebrew:
-      auto-update: false
-      owner: vagrant
+  - name: build_agent
+    run_list:
+      - recipe[azure_pipelines_agent_macos::default]
+    attributes:
+      azure_pipelines_agent:
+        agent_pool: SEAL Mac Staging
 
-- name: deployment_group
-  run_list:
-  - recipe[vsts_agent_macos::default]
-  attributes:
-    vsts_agent:
-      deployment_group: Cookbook Group
-      deployment_group_tags: test,kitchen,vagrant,chef
-      account: office
-      data_bag: vsts
-      data_bag_item: office_build_agent
-      project: APEX
-      work: _work
-      additional_environment:
-        VAGRANT_SERVER_URL: http://office-infra-boxes.corp.microsoft.com
-    homebrew:
-      auto-update: false
-      owner: vagrant
+  - name: deployment_group
+    run_list:
+      - recipe[azure_pipelines_agent_macos::default]
+    attributes:
+      azure_pipelines_agent:
+        deployment_group: Cookbook Group
+        deployment_group_tags: test,kitchen,vagrant,chef
+        project: APEX
+        work: _work
