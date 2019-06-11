@@ -5,9 +5,8 @@ driver:
   box_check_update: true
 
 provisioner:
-  client_rb:
-    chef_license: accept
   channel: stable
+  chef_license: accept
   data_bags_path: data_bags
   enforce_idempotency: true
   install_strategy: once
