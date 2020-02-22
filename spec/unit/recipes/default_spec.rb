@@ -1,6 +1,5 @@
 require 'chefspec'
 require 'chefspec/berkshelf'
-require 'chef-vault/test_fixtures'
 
 require_relative '../../../libraries/agent'
 
@@ -13,8 +12,6 @@ RSpec.configure do |config|
 end
 
 shared_context 'agent is running a job' do
-  include ChefVault::TestFixtures.rspec_shared_context
-
   before do
     stub_data_bag_item('azure_pipelines', 'build_agent').and_return('personal_access_token' => 'p9817234jhbasdfo87q234bnsadfasdf234')
     allow(Agent).to receive(:worker_running?).and_return true
@@ -26,8 +23,6 @@ shared_context 'agent is running a job' do
 end
 
 shared_context 'agent is idle' do
-  include ChefVault::TestFixtures.rspec_shared_context
-
   before do
     stub_data_bag_item('azure_pipelines', 'build_agent').and_return('personal_access_token' => 'p9817234jhbasdfo87q234bnsadfasdf234')
     allow(Agent).to receive(:worker_running?).and_return false
