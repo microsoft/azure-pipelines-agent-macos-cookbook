@@ -66,7 +66,7 @@ template 'create environment file' do
   source 'env.erb'
   owner Agent.admin_user
   group Agent.user_group
-  mode 0o644
+  mode '644'
   cookbook 'azure_pipelines_agent_macos'
   notifies :restart, 'macosx_service[azure-pipelines-agent]'
   not_if { Agent.worker_running? }
