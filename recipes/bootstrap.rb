@@ -10,7 +10,7 @@ agent_attrs = node['azure_pipelines_agent']
 if agent_attrs['pat']
   pat = agent_attrs['pat']
 else
-  auth_data = chef_vault_item agent_attrs['data_bag'], agent_attrs['data_bag_item']
+  auth_data = data_bag_item agent_attrs['data_bag'], agent_attrs['data_bag_item']
   pat = auth_data['personal_access_token']
 end
 
@@ -66,7 +66,7 @@ template 'create environment file' do
   source 'env.erb'
   owner Agent.admin_user
   group Agent.user_group
-  mode 0o644
+  mode '644'
   cookbook 'azure_pipelines_agent_macos'
   notifies :restart, 'macosx_service[azure-pipelines-agent]'
   not_if { Agent.worker_running? }

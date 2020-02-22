@@ -3,7 +3,7 @@ agent_attrs = node['azure_pipelines_agent']
 if agent_attrs['pat']
   pat = agent_attrs['pat']
 else
-  auth_data = chef_vault_item agent_attrs['data_bag'], agent_attrs['data_bag_item']
+  auth_data = data_bag_item agent_attrs['data_bag'], agent_attrs['data_bag_item']
   pat = auth_data['personal_access_token']
 end
 
