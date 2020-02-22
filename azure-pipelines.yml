@@ -1,0 +1,54 @@
+name: $(SourceBranchName)_$(Date:yyyyMMdd)$(Rev:.r)
+
+trigger:
+  batch: true
+  branches:
+    include:
+    - master
+  paths:
+    exclude:
+    - documentation/*
+    - LICENSE
+    - README.md
+    - CHANGELOG.md
+    - TESTING.md
+    - CONTRIBUTING.md
+    - .mailmap
+    - .rubocop.yml
+    - .gitignore
+    - chefignore
+
+pr:
+  branches:
+    include:
+    - master
+  paths:
+    exclude:
+    - documentation/*
+    - LICENSE
+    - README.md
+    - CHANGELOG.md
+    - TESTING.md
+    - CONTRIBUTING.md
+    - .mailmap
+    - .rubocop.yml
+    - .gitignore
+    - chefignore
+
+resources:
+  repositories:
+  - repository: templates
+    type: git
+    name: chef-pipelines-templates
+
+jobs:
+- template: chefspec-cookstyle-foodcritic.yml@templates
+- template: test-kitchen.yml@templates
+  parameters:
+    platforms:
+    - high-sierra
+    - mojave
+    suites:
+    - build-agent
+    - deployment-group
+    kitchenFile: kitchen.yml
