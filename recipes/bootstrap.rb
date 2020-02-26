@@ -1,5 +1,6 @@
 chef_gem 'sys-proctable' do
   compile_time true
+  options "--build-root #{Chef::Config['file_cache_path']}"
 end
 
 package 'git'

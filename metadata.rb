@@ -4,7 +4,7 @@ maintainer_email 'chef@microsoft.com'
 license 'MIT'
 description 'A dedicated cookbook for configuring an Azure DevOps build or release agent on macOS.'
 chef_version '>= 14.0'
-version '3.1.0'
+version '3.1.1'
 
 supports 'mac_os_x'
 
