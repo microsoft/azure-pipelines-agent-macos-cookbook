@@ -1,7 +1,4 @@
-chef_gem 'sys-proctable' do
-  compile_time true
-  options "--build-root #{Chef::Config['file_cache_path']} --no-user-install"
-end
+chef_gem 'sys-proctable'
 
 package 'git'
 package 'openssl'
