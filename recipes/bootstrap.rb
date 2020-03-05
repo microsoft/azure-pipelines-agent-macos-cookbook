@@ -22,14 +22,10 @@ end
 
 link '/usr/local/lib/libcrypto.1.0.0.dylib' do
   to '/usr/local/opt/openssl/lib/libcrypto.1.0.0.dylib'
-  owner Agent.admin_user
-  group Agent.user_group
 end
 
 link '/usr/local/lib/libssl.1.0.0.dylib' do
   to '/usr/local/opt/openssl/lib/libssl.1.0.0.dylib'
-  owner Agent.admin_user
-  group Agent.user_group
 end
 
 directory 'agent home' do
