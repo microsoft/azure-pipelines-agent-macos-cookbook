@@ -11,7 +11,7 @@ provisioner:
   enforce_idempotency: true
   install_strategy: once
   max_retries: 3
-  multiple_converge: 2
+  multiple_converge: 3
   name: chef_zero
   product_name: chef
   product_version: latest
