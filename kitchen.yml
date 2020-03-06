@@ -56,7 +56,7 @@ suites:
       - recipe[azure_pipelines_agent_macos::default]
     attributes:
       azure_pipelines_agent:
-        deployment_group: Cookbook Group
+        deployment_group: OE-APEX-Cookbook Group
         deployment_group_tags: test,kitchen,vagrant,chef
-        project: APEX
+        project: OE
         work: _work

@@ -11,13 +11,13 @@ Recipes
 
 ### Bootstrap
 
-Usage: `azure_piplines_agent_macos::bootstrap`
+Usage: `azure_pipelines_agent_macos::bootstrap`
 
 Add the node to the agent pool or deployment group.
 
 ### Teardown
 
-Usage: `azure_piplines_agent_macos::teardown`
+Usage: `azure_pipelines_agent_macos::teardown`
 
 Remove an existing agent from the build pool or deployment group.
 
@@ -31,7 +31,7 @@ The name of the agent.
 **Default value:** `node['hostname']`
 
 ```ruby
-default['azure_piplines_agent']['agent_name']
+default['azure_pipelines_agent']['agent_name']
 ```
 
 ### Agent Version
@@ -41,7 +41,7 @@ The version of the agent to install.
 **Default value:** `'2.150.3'`
 
 ```ruby
-default['azure_piplines_agent']['version']
+default['azure_pipelines_agent']['version']
 ```
 
 ### Agent Pool
@@ -51,7 +51,7 @@ The name of the agent pool you wish to add the agent to.
 **Default value:** `American Hanko's Agents`
 
 ```ruby
-default['azure_piplines_agent']['agent_pool']
+default['azure_pipelines_agent']['agent_pool']
 ```
 
 ### Organization Name
@@ -61,7 +61,7 @@ The name of your Azure DevOps organization. (e.g. 'americanhanko' in `https://de
 **Default value:** `americanhanko`
 
 ```ruby
-default['azure_piplines_agent']['account']
+default['azure_pipelines_agent']['account']
 ```
 
 ### Admin User
@@ -71,17 +71,17 @@ The username of an adminstrator on the macOS system.
 **Default value:** `'vagrant'`
 
 ```ruby
-default['azure_piplines_agent']['admin_user']
+default['azure_pipelines_agent']['admin_user']
 ```
 
 ### Agent Home Directory
 
 The location that contains all builds, source, release, etc.
 
-**Default value:** `'/Users/#{node['azure_piplines_agent']['admin_user']}/azure-piplines-agent'`
+**Default value:** `'/Users/#{node['azure_pipelines_agent']['admin_user']}/azure-pipelines-agent'`
 
 ```ruby
-default['azure_piplines_agent']['agent_home']
+default['azure_pipelines_agent']['agent_home']
 ```
 
 ### Additional Environment Variables
@@ -93,25 +93,25 @@ report back to the servers.
 **Default value:** `{}`
 
 ```ruby
-default['azure_piplines_agent']['additional_environment']
+default['azure_pipelines_agent']['additional_environment']
 ```
 
 Deployment Group
 ----------------
 
 This cookbook supports adding agents to Azure DevOps deployment groups. To use this feature, simply
-set the `default['azure_piplines_agent']['deployment_group']` attribute. In addition, make sure you have
+set the `default['azure_pipelines_agent']['deployment_group']` attribute. In addition, make sure you have
 the appropriate values set for the following attributes shown below. By default, we assume that
-if the `default['azure_piplines_agent']['deployment_group']` attribute is `nil`, we are bootstrapping
+if the `default['azure_pipelines_agent']['deployment_group']` attribute is `nil`, we are bootstrapping
 a build agent and _not_ a deployment agent. This means if you set this attribute, it will
 override the default functionality. You may optionally specifiy deployment group tags using
-`default['azure_piplines_agent']['deployment_group_tags']`.
+`default['azure_pipelines_agent']['deployment_group_tags']`.
 
 ```ruby
-default['azure_piplines_agent']['deployment_group'] = nil
-default['azure_piplines_agent']['project'] = nil
-default['azure_piplines_agent']['work'] = nil
-default['azure_piplines_agent']['deployment_group_tags'] = nil
+default['azure_pipelines_agent']['deployment_group'] = nil
+default['azure_pipelines_agent']['project'] = nil
+default['azure_pipelines_agent']['work'] = nil
+default['azure_pipelines_agent']['deployment_group_tags'] = nil
 ```
 
 Authentication
@@ -125,7 +125,7 @@ to authenticate to your organization on the Azure DevOps servers. The cookbook a
 Example:
 
 ```ruby
-default['azure_piplines_agent']['pat'] = '0fbdebc988934add98179ddaae019a01711'
+default['azure_pipelines_agent']['pat'] = '0fbdebc988934add98179ddaae019a01711'
 ```
 
 ### Data Bag or Chef Vault Item
@@ -137,8 +137,8 @@ accordingly:
 Example:
 
 ```ruby
-default['azure_piplines_agent']['data_bag'] = 'tea_bag'
-default['azure_piplines_agent']['data_bag_item'] = 'green_tea'
+default['azure_pipelines_agent']['data_bag'] = 'tea_bag'
+default['azure_pipelines_agent']['data_bag_item'] = 'green_tea'
 ```
 
 However, it **must** contain a `personal_access_token` key with
@@ -150,7 +150,7 @@ Example:
 
 ```json
 {
-  "id": "azure_piplines_build_agent",
+  "id": "azure_pipelines_build_agent",
   "personal_access_token": "iu8tfaxxrhce7yeu434yo9zfjtxif3jygzk24wegi855er2moobs"
 }
 ```
