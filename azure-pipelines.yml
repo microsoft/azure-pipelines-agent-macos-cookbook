@@ -46,8 +46,7 @@ jobs:
 - template: test-kitchen.yml@templates
   parameters:
     platforms:
-    - high-sierra
-    - mojave
+    - monterey
     suites:
     - build-agent
     - deployment-group

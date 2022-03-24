@@ -35,13 +35,9 @@ verifier:
     - test/integration/default
 
 platforms:
-  - name: high-sierra
+  - name: monterey
     driver:
-      box: microsoft/macos-high-sierra
-
-  - name: mojave
-    driver:
-      box: microsoft/macos-mojave
+      box: microsoft/macos-monterey
 
 suites:
   - name: build_agent
