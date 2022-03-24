@@ -1,4 +1,4 @@
-require 'uri'
+require 'cgi/util'
 
 include Chef::Mixin::ShellOut
 
@@ -7,7 +7,7 @@ module AzurePipelines
     class << self
       def release_download_url(version = nil)
         version ||= agent_attrs['version']
-        ::URI.encode "https://vstsagentpackage.azureedge.net/agent/#{version}/vsts-agent-osx-x64-#{version}.tar.gz"
+        ::CGI::Util.escapeHTML("https://vstsagentpackage.azureedge.net/agent/#{version}/vsts-agent-osx-x64-#{version}.tar.gz")
       end
 
       def agent_home
