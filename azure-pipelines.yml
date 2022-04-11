@@ -49,5 +49,4 @@ jobs:
     - monterey
     suites:
     - build-agent
-    - deployment-group
     kitchenFile: kitchen.yml
