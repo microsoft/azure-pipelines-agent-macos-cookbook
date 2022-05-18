@@ -18,8 +18,7 @@ provisioner:
   attributes:
     azure_pipelines_agent:
       account: office
-      data_bag: azure_pipelines
-      data_bag_item: office_build_agent
+      pat: <%= ENV['AGENT_PAT'] %>
     homebrew:
       auto-update: false
       owner: vagrant
@@ -35,13 +34,9 @@ verifier:
     - test/integration/default
 
 platforms:
-  - name: high-sierra
+  - name: monterey
     driver:
-      box: microsoft/macos-high-sierra
-
-  - name: mojave
-    driver:
-      box: microsoft/macos-mojave
+      box: microsoft/macos-monterey
 
 suites:
   - name: build_agent
